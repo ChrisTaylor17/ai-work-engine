@@ -19,6 +19,8 @@ async function generateAIResponse(input: string): Promise<string> {
     if (response.ok) {
       const data = await response.json();
       return data.response;
+    } else {
+      console.error('API response error:', response.status, response.statusText);
     }
   } catch (error) {
     console.error('OpenAI API error:', error);
@@ -37,6 +39,19 @@ That NFT is now permanently stored on Solana blockchain. You can:
 • List it on marketplaces
 
 Want to create another one? Try "create project" for tokens! 🚀`;
+  }
+  
+  if (lower.includes('what') || lower.includes('how') || lower.includes('why')) {
+    return `🤔 **Great question!**
+
+I'm an AI that can chat about anything AND create real blockchain assets on Solana.
+
+I can discuss topics, answer questions, or create:
+• NFTs with "create nft"
+• Project tokens with "create project"
+• Custom art with "mint art"
+
+What would you like to know or build? 🚀`;
   }
   
   if (lower.includes('hello') || lower.includes('hi')) {
