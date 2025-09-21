@@ -15,7 +15,7 @@ export default function Home() {
 
   const network = WalletAdapterNetwork.Devnet;
   const endpoint = clusterApiUrl(network);
-  const wallets = [];
+  const wallets: any[] = [];
 
   useEffect(() => {
     const token = localStorage.getItem('token');
