@@ -69,9 +69,10 @@ export const createMetaplexNFT = async (wallet: any, name: string, description: 
     );
 
     // Sign and send transaction with better error handling
+    let signature: string;
     try {
       transaction.partialSign(mintKeypair);
-      const signature = await sendTransaction(transaction, connection, {
+      signature = await sendTransaction(transaction, connection, {
         skipPreflight: false,
         preflightCommitment: 'processed'
       });
