@@ -5,7 +5,7 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 export const createWorkToken = async (wallet: any, amount: number) => {
   try {
-    if (!wallet?.publicKey) {
+    if (!wallet) {
       throw new Error('Wallet not connected');
     }
 
@@ -52,7 +52,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
 
 export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
   try {
-    if (!wallet?.publicKey) {
+    if (!wallet) {
       throw new Error('Wallet not connected');
     }
 

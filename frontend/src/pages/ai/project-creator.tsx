@@ -39,7 +39,7 @@ export default function ProjectCreator() {
       
       let response = '';
       
-      if (!connected || !wallet?.publicKey) {
+      if (!connected || !wallet) {
         response = `⚠️ **WALLET NOT CONNECTED**
 
 To create real blockchain assets:
