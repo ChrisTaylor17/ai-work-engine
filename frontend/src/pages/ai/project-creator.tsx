@@ -33,6 +33,8 @@ export default function ProjectCreator() {
       let nftData;
       const lower = input.toLowerCase();
       
+      let response = '';
+      
       // Get connected wallet
       const wallet = (window as any).solana;
       
@@ -59,7 +61,7 @@ Connect wallet for real blockchain transactions!`;
           } else {
             tokenData = await createWorkToken(wallet, tokensEarned);
           }
-        } catch (error) {
+        } catch (error: any) {
           response = `❌ **BLOCKCHAIN ERROR**
 
 Failed to create on Solana: ${error.message}
@@ -75,9 +77,7 @@ Please check wallet and try again!`;
         }
       }
       
-      let response = '';
-      
-      if (nftData) {
+      if (response === '' && nftData) {
         response = `🎨 **REAL METAPLEX NFT CREATED!**
 
 ✅ **LIVE ON SOLANA DEVNET**
@@ -126,7 +126,7 @@ Slot: ${tokenData.slot}
 https://explorer.solana.com/address/${tokenData.mintAddress}?cluster=devnet
 
 Your project tokens are live on Solana!`;
-      } else {
+      } else if (response === '') {
         response = `🤖 **SOLANA TOKENS MINTED!**
 
 🎉 **SPL TOKENS CREATED:**
