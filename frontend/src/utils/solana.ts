@@ -16,7 +16,9 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
     // Create transaction
-    const transaction = new Transaction().add(
+    const transaction = new Transaction();
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.add(
       SystemProgram.createAccount({
         fromPubkey: publicKey,
         newAccountPubkey: mintKeypair.publicKey,
@@ -92,7 +94,9 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
     // Create transaction
-    const transaction = new Transaction().add(
+    const transaction = new Transaction();
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.add(
       SystemProgram.createAccount({
         fromPubkey: publicKey,
         newAccountPubkey: mintKeypair.publicKey,
