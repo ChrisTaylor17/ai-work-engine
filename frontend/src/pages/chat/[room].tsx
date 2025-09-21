@@ -24,7 +24,7 @@ export default function ChatRoom() {
         id: 1,
         user: 'AI Assistant',
         avatar: '🤖',
-        message: `Welcome to #${room}! I'm here to help you with project creation, token allocation, and team matching. Try asking me something!`,
+        message: `Welcome to #${room}! I'm your intelligent AI assistant. I can help you create projects, allocate tokens, find team members, and much more. What would you like to work on?`,
         timestamp: new Date().toISOString(),
         isAi: true
       }
@@ -66,38 +66,126 @@ export default function ChatRoom() {
   const getAiResponse = (message: string, roomName: string) => {
     const lowerMessage = message.toLowerCase();
     
-    if (roomName === 'ai-help') {
-      if (lowerMessage.includes('project') || lowerMessage.includes('create')) {
-        return `🚀 **Project Creation Guide:**
+    // Token allocation responses
+    if (lowerMessage.includes('allocate') || lowerMessage.includes('token')) {
+      return `⚖️ **Token Allocation Analysis:**
 
-1. **Describe your idea** - Tell me what you want to build
-2. **Set requirements** - Skills needed, timeline, budget
-3. **AI matching** - I'll find perfect team members
-4. **Token allocation** - Fair distribution based on contributions
-5. **Launch** - Start building together!
+For your request "${message}":
 
-Try: &quot;Create a DeFi project&quot; or &quot;I need a mobile app team&quot;`;
-      }
-      
-      if (lowerMessage.includes('token') || lowerMessage.includes('allocation')) {
-        return `⚖️ **Token Allocation System:**
+💰 **Recommended Distribution:**
+• Lead Developer: 35% (350 tokens)
+• Frontend Developer: 25% (250 tokens)
+• Backend Developer: 25% (250 tokens)
+• Designer: 15% (150 tokens)
 
-• **Contribution-based** - Rewards actual work done
-• **Skill weighting** - Higher skills = higher allocation
-• **Time tracking** - Fair compensation for time invested
-• **Milestone bonuses** - Extra tokens for hitting goals
+🎯 **Allocation Factors:**
+• Skill rarity and market demand
+• Time commitment and availability
+• Project impact and responsibility
+• Historical performance data
 
-Example: &quot;Allocate tokens for our NFT marketplace project&quot;`;
-      }
+✅ **Next Steps:**
+1. Review the allocation above
+2. Type 'approve allocation' to distribute
+3. Tokens will be sent to team wallets
+
+💡 This allocation earns you 50 WORK tokens as facilitator fee!`;
     }
     
-    return `I understand you said &quot;${message}&quot;. How can I help you with:
+    // Project creation responses
+    if (lowerMessage.includes('create') || lowerMessage.includes('project') || lowerMessage.includes('build')) {
+      return `🚀 **Project Creation Assistant:**
 
-🚀 **Project Creation** - Build something amazing
-⚖️ **Token Allocation** - Fair reward distribution  
-🎯 **Team Matching** - Find perfect collaborators
+Analyzing "${message}"...
 
-Just ask me anything!`;
+📋 **Project Requirements:**
+• Technology stack assessment
+• Team size: 3-5 members recommended
+• Timeline: 6-12 weeks estimated
+• Budget: 500-1000 WORK tokens
+
+🔍 **Skills Needed:**
+• Frontend development (React/Next.js)
+• Backend development (Node.js/Python)
+• Smart contract development (Solidity)
+• UI/UX design
+
+💡 **AI Recommendations:**
+1. Start with MVP features
+2. Focus on core functionality first
+3. Plan token economics early
+
+Type 'find team' to start recruiting members!`;
+    }
+    
+    // Team matching responses
+    if (lowerMessage.includes('team') || lowerMessage.includes('find') || lowerMessage.includes('hire')) {
+      return `🎯 **Team Matching Service:**
+
+Searching for "${message}"...
+
+👥 **Available Developers:**
+• Sarah_K - React specialist, 4.9★, 30hrs/week
+• Mike_B - Solidity expert, 4.8★, 25hrs/week  
+• Alex_D - Full-stack dev, 4.7★, 35hrs/week
+• Lisa_M - UI/UX designer, 4.9★, 20hrs/week
+
+💰 **Hiring Incentives:**
+• You earn: 25 WORK tokens per successful hire
+• Developer earns: 15 WORK tokens for joining
+• Project completion bonus: 200 tokens each
+
+🚀 **Quick Actions:**
+Type 'contact Sarah' to send hiring message
+Type 'view profiles' for detailed information`;
+    }
+    
+    // General help and other queries
+    if (lowerMessage.includes('help') || lowerMessage.includes('how') || lowerMessage.includes('what')) {
+      return `🤖 **AI Work Engine Assistant:**
+
+I can help you with:
+
+🚀 **Project Creation**
+• Analyze your ideas
+• Recommend tech stacks
+• Estimate timelines and budgets
+• Create project roadmaps
+
+⚖️ **Token Allocation**
+• Fair distribution calculations
+• Market-rate analysis
+• Blockchain distribution
+• Performance-based rewards
+
+🎯 **Team Matching**
+• Find skilled developers
+• Match based on availability
+• Verify credentials and ratings
+• Facilitate introductions
+
+💡 **Try asking:**
+• "Create a DeFi lending platform"
+• "Allocate tokens for 5-person team"
+• "Find a Solidity developer"`;
+    }
+    
+    // Default intelligent response
+    return `🤖 **Processing: "${message}"**
+
+I understand you're interested in ${message.toLowerCase()}. Let me help you with that!
+
+💡 **Smart Suggestions:**
+• If you want to start a project, describe your idea
+• If you need team members, tell me what skills you need
+• If you want token allocation, describe your team structure
+
+🎯 **Popular Actions:**
+• "Create NFT marketplace" → Project planning
+• "Need React developer" → Team matching  
+• "Distribute 1000 tokens" → Fair allocation
+
+What would you like to focus on first?`;
   };
 
   return (
