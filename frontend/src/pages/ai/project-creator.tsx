@@ -111,10 +111,10 @@ Your NFT is permanently stored on Solana!`;
 Project ID: PROJ_${Date.now()}
 
 🔗 **SOLANA BLOCKCHAIN DATA:**
-Mint Address: ${tokenData.mintAddress}
-Transaction: ${tokenData.signature}
-Block Time: ${new Date(tokenData.blockTime).toLocaleString()}
-Slot: ${tokenData.slot}
+Mint Address: ${tokenData?.mintAddress || 'N/A'}
+Transaction: ${tokenData?.signature || 'N/A'}
+Block Time: ${tokenData ? new Date(tokenData.blockTime).toLocaleString() : 'N/A'}
+Slot: ${tokenData?.slot || 'N/A'}
 
 💰 **TOKEN SUPPLY CREATED:**
 • Total Supply: 10,000 WORK tokens
@@ -123,19 +123,19 @@ Slot: ${tokenData.slot}
 • Creator Pool: 2,000 tokens (20%)
 
 🔍 **View on Solana Explorer:**
-https://explorer.solana.com/address/${tokenData.mintAddress}?cluster=devnet
+https://explorer.solana.com/address/${tokenData?.mintAddress || 'N/A'}?cluster=devnet
 
 Your project tokens are live on Solana!`;
       } else if (response === '') {
         response = `🤖 **SOLANA TOKENS MINTED!**
 
 🎉 **SPL TOKENS CREATED:**
-Mint: ${tokenData.mintAddress}
+Mint: ${tokenData?.mintAddress || 'N/A'}
 Amount: ${tokensEarned} WORK tokens
-Signature: ${tokenData.signature}
+Signature: ${tokenData?.signature || 'N/A'}
 
 🔗 **Solana Transaction:**
-https://explorer.solana.com/tx/${tokenData.signature}?cluster=devnet
+https://explorer.solana.com/tx/${tokenData?.signature || 'N/A'}?cluster=devnet
 
 💡 **Try These Commands:**
 • "create nft" → Metaplex NFT + 50 WORK
