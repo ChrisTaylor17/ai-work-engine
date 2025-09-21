@@ -27,10 +27,21 @@ export default function TeamMatcher() {
     setMessages(prev => [...prev, userMsg]);
     
     setTimeout(() => {
+      let response = '';
+      const lower = input.toLowerCase();
+      
+      if (lower.includes('yes') || lower.includes('contact') || lower.includes('hire')) {
+        response = `🎉 TEAM MEMBER CONTACTED!\n\nJohn_Dev has been notified about your project.\n\n💰 TOKEN REWARD: +25 WORK tokens\n📧 Contact initiated via blockchain messaging\n⏰ Expected response: 2-4 hours\n\n📊 YOUR STATS:\n• Total tokens: 175 WORK\n• Projects created: 2\n• Team matches: 5\n\nJohn_Dev will receive 15 WORK tokens for responding.\nSuccessful collaboration = 200 token bonus each!`;
+      } else if (lower.includes('solidity') || lower.includes('web3') || lower.includes('blockchain')) {
+        response = `🔍 BLOCKCHAIN DEVELOPERS FOUND:\n\n• Mike_Build - Solidity expert - 25hrs/week\n  └ 3 DeFi projects completed\n  └ 450 WORK tokens earned\n  └ 5-star rating\n\n• Alex_Chain - Web3 specialist - 20hrs/week\n  └ NFT marketplace experience\n  └ 320 WORK tokens earned\n  └ Available immediately\n\n💡 TIP: Type 'contact Mike' to hire instantly!\n🪙 Hiring costs 10 WORK tokens (refunded on project completion)`;
+      } else {
+        response = `🔍 SEARCHING TALENT POOL...\n\nFound ${Math.floor(Math.random() * 8) + 3} developers matching "${input}":\n\n• John_Dev - React/Node.js - 30hrs/week - 380 tokens earned\n• Sarah_Code - Python/AI - 20hrs/week - 290 tokens earned\n• Mike_Build - Solidity/Web3 - 25hrs/week - 450 tokens earned\n\n💰 HIRING REWARDS:\n• You get: 25 WORK tokens for successful match\n• Developer gets: 15 WORK tokens for responding\n• Both get: 200 token bonus on project completion\n\nType 'contact [name]' to hire!`;
+      }
+      
       const aiMsg = {
         id: Date.now() + 1,
         user: 'AI Team Matcher',
-        message: `Found 3 developers matching "${input}":\n\n• John_Dev - React/Node.js - Available 30hrs/week\n• Sarah_Code - Python/AI - Available 20hrs/week\n• Mike_Build - Solidity/Web3 - Available 25hrs/week\n\nWant to contact any of them?`,
+        message: response,
         isAi: true,
         timestamp: new Date().toISOString()
       };

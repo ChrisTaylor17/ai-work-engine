@@ -27,10 +27,21 @@ export default function TokenAllocator() {
     setMessages(prev => [...prev, userMsg]);
     
     setTimeout(() => {
+      let response = '';
+      const lower = input.toLowerCase();
+      
+      if (lower.includes('approve') || lower.includes('yes') || lower.includes('confirm')) {
+        response = `✅ TOKENS ALLOCATED ON SOLANA!\n\nTransaction Hash: 0x${Math.random().toString(16).substr(2, 8)}...\n\n💰 DISTRIBUTION COMPLETE:\n• Lead Dev: 300 WORK tokens → Wallet confirmed\n• Frontend: 250 WORK tokens → Wallet confirmed\n• Backend: 250 WORK tokens → Wallet confirmed\n• Designer: 150 WORK tokens → Wallet confirmed\n• Marketing: 50 WORK tokens → Wallet confirmed\n\n🎉 YOU EARNED: 50 WORK tokens (allocation fee)\n📊 YOUR BALANCE: ${Math.floor(Math.random() * 300) + 200} WORK tokens\n\nAll team members notified via Solana messaging!`;
+      } else if (lower.includes('balance') || lower.includes('my tokens')) {
+        response = `💰 YOUR TOKEN PORTFOLIO:\n\nCurrent Balance: ${Math.floor(Math.random() * 500) + 150} WORK tokens\n\n📊 EARNINGS BREAKDOWN:\n• Project creation: 125 tokens\n• Team matching: 75 tokens\n• Token allocation: 100 tokens\n• Completed projects: 200 tokens\n\n🚀 RECENT ACTIVITY:\n• +25 tokens - Team match reward\n• +50 tokens - Project completion bonus\n• +15 tokens - Profile completion\n\nSolana wallet: ${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 4)}`;
+      } else {
+        response = `Token allocation for "${input}":\n\n💰 TOTAL POOL: ${Math.floor(Math.random() * 500) + 500} WORK tokens\n\n📊 SMART ALLOCATION:\n• Lead Developer: ${Math.floor(Math.random() * 100) + 250} tokens (${Math.floor(Math.random() * 10) + 25}%)\n• Frontend Dev: ${Math.floor(Math.random() * 50) + 200} tokens (${Math.floor(Math.random() * 5) + 20}%)\n• Backend Dev: ${Math.floor(Math.random() * 50) + 200} tokens (${Math.floor(Math.random() * 5) + 20}%)\n• Designer: ${Math.floor(Math.random() * 50) + 100} tokens (${Math.floor(Math.random() * 5) + 15}%)\n\n⚖️ AI Analysis: Based on market rates, skill rarity, time commitment\n💰 Your fee: 50 WORK tokens\n\nType 'approve' to distribute on Solana blockchain!`;
+      }
+      
       const aiMsg = {
         id: Date.now() + 1,
         user: 'AI Token Allocator',
-        message: `Token allocation for "${input}":\n\n💰 TOTAL POOL: 1000 WORK tokens\n\n📊 ALLOCATION:\n• Lead Developer: 300 tokens (30%)\n• Frontend Dev: 250 tokens (25%)\n• Backend Dev: 250 tokens (25%)\n• Designer: 150 tokens (15%)\n• Marketing: 50 tokens (5%)\n\n⚖️ Based on: skill level, time commitment, project impact\n\nApprove this allocation?`,
+        message: response,
         isAi: true,
         timestamp: new Date().toISOString()
       };

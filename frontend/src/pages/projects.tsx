@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
+import TokenBalance from '../components/TokenBalance';
 
 export default function Projects() {
   const router = useRouter();
@@ -41,6 +42,11 @@ export default function Projects() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
+          {/* Token Balance */}
+          <div className="mb-6">
+            <TokenBalance />
+          </div>
+          
           {/* Create New Project */}
           <div className="card mb-6">
             <h2 className="text-white font-mono mb-4">[CREATE_NEW_PROJECT]</h2>
