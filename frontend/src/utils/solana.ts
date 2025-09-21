@@ -1,6 +1,6 @@
-import { Connection, PublicKey, Keypair, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Metaplex, keypairIdentity } from '@metaplex-foundation/js';
+import { Connection, PublicKey, Keypair, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { createMint, getOrCreateAssociatedTokenAccount, mintTo } from '@solana/spl-token';
+import { Metaplex, keypairIdentity, walletAdapterIdentity } from '@metaplex-foundation/js';
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
@@ -16,7 +16,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
       wallet,
       wallet.publicKey,
       null,
-      9 // 9 decimals
+      9
     );
 
     // Get or create token account
@@ -58,19 +58,19 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     }
 
     const metaplex = Metaplex.make(connection)
-      .use(keypairIdentity(wallet));
+      .use(walletAdapterIdentity(wallet));
 
     const { nft } = await metaplex.nfts().create({
       uri: '',
       name: name,
-      sellerFeeBasisPoints: 500, // 5% royalty
+      sellerFeeBasisPoints: 500,
     });
 
     return {
       mintAddress: nft.address.toBase58(),
       name: name,
       description: description,
-      signature: `${Math.random().toString(16).substr(2, 16)}${Math.random().toString(16).substr(2, 16)}`,
+      signature: nft.mint.address.toBase58(),
       metadataUri: nft.uri,
       blockTime: Date.now(),
       slot: await connection.getSlot(),

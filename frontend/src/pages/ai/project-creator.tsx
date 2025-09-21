@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
 import { createWorkToken, createNFT } from '../../utils/solana';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export default function ProjectCreator() {
+  const { wallet, connected } = useWallet();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -35,10 +38,7 @@ export default function ProjectCreator() {
       
       let response = '';
       
-      // Get connected wallet
-      const wallet = (window as any).solana;
-      
-      if (!wallet || !wallet.isConnected) {
+      if (!connected || !wallet) {
         response = `⚠️ **WALLET NOT CONNECTED**
 
 To create real blockchain assets:
@@ -188,6 +188,9 @@ All assets are real on Solana blockchain!`;
         </div>
 
         <div className="bg-black border-t border-white p-4">
+          <div className="mb-3">
+            <WalletMultiButton className="!bg-white !text-black !font-mono !rounded-none" />
+          </div>
           <div className="flex space-x-3">
             <input
               type="text"
