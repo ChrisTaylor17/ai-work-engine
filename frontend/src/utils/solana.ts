@@ -1,5 +1,6 @@
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { createMint, getOrCreateAssociatedTokenAccount, mintTo } from '@solana/spl-token';
+import { Metaplex, keypairIdentity, walletAdapterIdentity } from '@metaplex-foundation/js';
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
@@ -51,20 +52,42 @@ export const createWorkToken = async (wallet: any, amount: number) => {
 };
 
 export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
-  // Simplified NFT creation without Metaplex for now
-  const mintAddress = `NFT${Math.random().toString(16).substr(2, 8).toUpperCase()}`;
-  const signature = `${Math.random().toString(16).substr(2, 16)}${Math.random().toString(16).substr(2, 16)}`;
-  
-  return {
-    mintAddress,
-    name,
-    description,
-    signature,
-    metadataUri: `https://arweave.net/${Math.random().toString(16).substr(2, 16)}`,
-    blockTime: Date.now(),
-    slot: Math.floor(Math.random() * 1000000) + 100000,
-    image: imageUrl
-  };
+  try {
+    if (!wallet?.publicKey) {
+      throw new Error('Wallet not connected');
+    }
+
+    const metaplex = Metaplex.make(connection)
+      .use(walletAdapterIdentity(wallet));
+
+    // Upload metadata to Arweave
+    const { uri } = await metaplex.nfts().uploadMetadata({
+      name: name,
+      description: description,
+      image: imageUrl,
+    });
+
+    // Create NFT
+    const { nft } = await metaplex.nfts().create({
+      uri: uri,
+      name: name,
+      sellerFeeBasisPoints: 500,
+    });
+
+    return {
+      mintAddress: nft.address.toBase58(),
+      name: name,
+      description: description,
+      signature: nft.mint.address.toBase58(),
+      metadataUri: uri,
+      blockTime: Date.now(),
+      slot: await connection.getSlot(),
+      image: imageUrl
+    };
+  } catch (error) {
+    console.error('NFT creation failed:', error);
+    throw error;
+  }
 };
 
 export const getTokenBalance = async (walletAddress: string) => {

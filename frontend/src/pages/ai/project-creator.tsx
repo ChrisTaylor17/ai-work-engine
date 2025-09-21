@@ -4,6 +4,7 @@ import { createWorkToken, createNFT } from '../../utils/solana';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
+
 export default function ProjectCreator() {
   const { wallet, connected } = useWallet();
   const [messages, setMessages] = useState([
