@@ -1,12 +1,12 @@
-FROM node:20-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN apk add --no-cache python3 make g++ linux-headers libudev-zero-dev && npm install --omit=dev
+RUN npm install
 
 COPY . .
-RUN npm install && npm run build
+RUN npm run build
 
 EXPOSE 3001
 
