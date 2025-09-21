@@ -97,16 +97,6 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     const mintKeypair = new (await import('@solana/web3.js')).Keypair();
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
-    // Create metadata account address
-    const [metadataAddress] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from('metadata'),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mintKeypair.publicKey.toBuffer(),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    );
-
     // Create JSON metadata
     const metadata = {
       name: name,
@@ -164,31 +154,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       )
     );
 
-    // Create metadata instruction (simplified)
-    const createMetadataInstruction = {
-      keys: [
-        { pubkey: metadataAddress, isSigner: false, isWritable: true },
-        { pubkey: mintKeypair.publicKey, isSigner: false, isWritable: false },
-        { pubkey: publicKey, isSigner: true, isWritable: false },
-        { pubkey: publicKey, isSigner: true, isWritable: true },
-        { pubkey: publicKey, isSigner: true, isWritable: false },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-        { pubkey: new PublicKey('Sysvar1nstructions1111111111111111111111111'), isSigner: false, isWritable: false },
-      ],
-      programId: TOKEN_METADATA_PROGRAM_ID,
-      data: Buffer.concat([
-        Buffer.from([0]), // CreateMetadataAccountV3 instruction
-        Buffer.from(name),
-        Buffer.from([0]),
-        Buffer.from(description),
-        Buffer.from([0]),
-        Buffer.from(imageUrl),
-        Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0]) // metadata fields
-      ])
-    };
-
-    // Add metadata instruction
-    transaction.add(createMetadataInstruction);
+    // Note: Metadata stored off-chain for simplicity
 
     // Send transaction
     transaction.partialSign(mintKeypair);
