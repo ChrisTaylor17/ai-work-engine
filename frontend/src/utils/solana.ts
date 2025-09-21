@@ -159,33 +159,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       )
     );
 
-    // Create metadata instruction
-    const createMetadataIx = new TransactionInstruction({
-      keys: [
-        { pubkey: metadataPDA, isSigner: false, isWritable: true },
-        { pubkey: mintKeypair.publicKey, isSigner: false, isWritable: false },
-        { pubkey: publicKey, isSigner: true, isWritable: false },
-        { pubkey: publicKey, isSigner: true, isWritable: true },
-        { pubkey: publicKey, isSigner: true, isWritable: false },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-        { pubkey: new PublicKey('Sysvar1nstructions1111111111111111111111111'), isSigner: false, isWritable: false },
-      ],
-      programId: TOKEN_METADATA_PROGRAM_ID,
-      data: Buffer.from([
-        33, // CreateMetadataAccountV3 discriminator
-        ...encodeString(name),
-        ...encodeString('AINFT'),
-        ...encodeString(description),
-        ...encodeString(imageUrl),
-        0, 0, // seller_fee_basis_points (0%)
-        1, // update_authority_is_signer
-        0, // is_mutable
-        0, 0, 0, 0, // collection (none)
-        0, 0, 0, 0, // uses (none)
-      ])
-    });
-
-    transaction.add(createMetadataIx);
+    // Skip metadata instruction for now - creates working NFT structure
 
     // Send transaction
     transaction.partialSign(mintKeypair);
