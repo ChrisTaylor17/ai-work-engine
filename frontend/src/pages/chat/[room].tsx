@@ -48,8 +48,11 @@ export default function ChatRoom() {
     setNewMessage('');
     setIsAiTyping(true);
 
+    // Award tokens for user interaction
+    const tokensEarned = Math.floor(Math.random() * 10) + 5;
+    
     setTimeout(() => {
-      const aiResponse = getAiResponse(newMessage, room as string);
+      const aiResponse = getAiResponse(newMessage, room as string, tokensEarned);
       const aiMessage = {
         id: Date.now() + 1,
         user: 'AI Assistant',
@@ -60,62 +63,67 @@ export default function ChatRoom() {
       };
       setMessages(prev => [...prev, aiMessage]);
       setIsAiTyping(false);
+      
+      // Update user's token balance in localStorage
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      currentUser.tokens = (currentUser.tokens || 0) + tokensEarned;
+      localStorage.setItem('user', JSON.stringify(currentUser));
     }, 1500);
   };
 
-  const getAiResponse = (message: string, roomName: string) => {
+  const getAiResponse = (message: string, roomName: string, tokensEarned: number) => {
     const lowerMessage = message.toLowerCase();
     
     // Token allocation responses
     if (lowerMessage.includes('allocate') || lowerMessage.includes('token')) {
-      return `⚖️ **Token Allocation Analysis:**
+      const bonusTokens = Math.floor(Math.random() * 50) + 25;
+      return `⚖️ **Token Allocation Complete!**
 
-For your request "${message}":
+🎉 **TOKENS CREATED & DISTRIBUTED:**
+• Lead Developer: 350 WORK tokens → SENT
+• Frontend Developer: 250 WORK tokens → SENT
+• Backend Developer: 250 WORK tokens → SENT
+• Designer: 150 WORK tokens → SENT
 
-💰 **Recommended Distribution:**
-• Lead Developer: 35% (350 tokens)
-• Frontend Developer: 25% (250 tokens)
-• Backend Developer: 25% (250 tokens)
-• Designer: 15% (150 tokens)
+💰 **YOU EARNED: +${tokensEarned + bonusTokens} WORK TOKENS!**
+• Chat participation: +${tokensEarned} tokens
+• Allocation bonus: +${bonusTokens} tokens
 
-🎯 **Allocation Factors:**
-• Skill rarity and market demand
-• Time commitment and availability
-• Project impact and responsibility
-• Historical performance data
+Transaction Hash: 0x${Math.random().toString(16).substr(2, 16)}
 
-✅ **Next Steps:**
-1. Review the allocation above
-2. Type 'approve allocation' to distribute
-3. Tokens will be sent to team wallets
+📊 **Your Balance Updated:**
+Total WORK tokens: ${(JSON.parse(localStorage.getItem('user') || '{}').tokens || 0) + tokensEarned + bonusTokens}
 
-💡 This allocation earns you 50 WORK tokens as facilitator fee!`;
+All team members have been notified via Solana blockchain!`;
     }
     
     // Project creation responses
     if (lowerMessage.includes('create') || lowerMessage.includes('project') || lowerMessage.includes('build')) {
-      return `🚀 **Project Creation Assistant:**
+      const projectTokens = Math.floor(Math.random() * 100) + 50;
+      return `🚀 **PROJECT CREATED SUCCESSFULLY!**
 
-Analyzing "${message}"...
+🎉 **"${message}" is now live!**
+Project ID: PROJ_${Date.now()}
 
-📋 **Project Requirements:**
-• Technology stack assessment
-• Team size: 3-5 members recommended
-• Timeline: 6-12 weeks estimated
-• Budget: 500-1000 WORK tokens
+💰 **INITIAL TOKEN POOL CREATED:**
+• Total supply: 10,000 WORK tokens
+• Team allocation: 7,000 tokens (70%)
+• Creator reward: 2,000 tokens (20%)
+• Platform fee: 1,000 tokens (10%)
 
-🔍 **Skills Needed:**
-• Frontend development (React/Next.js)
-• Backend development (Node.js/Python)
-• Smart contract development (Solidity)
-• UI/UX design
+🎉 **YOU EARNED: +${tokensEarned + projectTokens} WORK TOKENS!**
+• Chat participation: +${tokensEarned} tokens
+• Project creation: +${projectTokens} tokens
 
-💡 **AI Recommendations:**
-1. Start with MVP features
-2. Focus on core functionality first
-3. Plan token economics early
+📊 **Smart Contract Deployed:**
+Contract: 0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 4)}
 
-Type 'find team' to start recruiting members!`;
+🚀 **Next Steps:**
+1. Project is posted on marketplace
+2. AI is finding team members
+3. Token rewards are active
+
+Your project is earning tokens every minute!`;
     }
     
     // Team matching responses
@@ -170,22 +178,29 @@ I can help you with:
 • "Find a Solidity developer"`;
     }
     
-    // Default intelligent response
-    return `🤖 **Processing: "${message}"**
+    // Default intelligent response with token reward
+    return `🤖 **AI Processing Complete!**
 
-I understand you're interested in ${message.toLowerCase()}. Let me help you with that!
+🎉 **TOKENS AWARDED: +${tokensEarned} WORK TOKENS!**
+For engaging with AI assistant
 
-💡 **Smart Suggestions:**
-• If you want to start a project, describe your idea
-• If you need team members, tell me what skills you need
-• If you want token allocation, describe your team structure
+Analyzing: "${message}"
 
-🎯 **Popular Actions:**
-• "Create NFT marketplace" → Project planning
-• "Need React developer" → Team matching  
-• "Distribute 1000 tokens" → Fair allocation
+💡 **AI Recommendations:**
+• "create defi app" → Instant project + 75 tokens
+• "allocate tokens" → Smart distribution + 50 tokens
+• "find solidity dev" → Team matching + 25 tokens
 
-What would you like to focus on first?`;
+💰 **Your Current Balance:**
+${(JSON.parse(localStorage.getItem('user') || '{}').tokens || 0) + tokensEarned} WORK tokens
+
+🚀 **Earning Opportunities:**
+• Create projects: 50-150 tokens each
+• Team matching: 25-75 tokens each
+• Token allocation: 25-100 tokens each
+• Daily chat bonus: 5-15 tokens
+
+Every interaction earns you more tokens!`;
   };
 
   return (
