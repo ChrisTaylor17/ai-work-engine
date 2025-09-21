@@ -176,18 +176,14 @@ export const createNFT = async (wallet: any, name: string, description: string, 
         { pubkey: new PublicKey('Sysvar1nstructions1111111111111111111111111'), isSigner: false, isWritable: false },
       ],
       programId: TOKEN_METADATA_PROGRAM_ID,
-      data: Buffer.from([
-        0, // CreateMetadataAccountV3 instruction
-        ...Buffer.from(name),
-        0,
-        ...Buffer.from(description),
-        0,
-        ...Buffer.from(imageUrl),
-        0,
-        0, 0, // seller_fee_basis_points
-        0, // creators (none)
-        0, 0, 0, 0, // collection (none)
-        0, // uses (none)
+      data: Buffer.concat([
+        Buffer.from([0]), // CreateMetadataAccountV3 instruction
+        Buffer.from(name),
+        Buffer.from([0]),
+        Buffer.from(description),
+        Buffer.from([0]),
+        Buffer.from(imageUrl),
+        Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0]) // metadata fields
       ])
     };
 
