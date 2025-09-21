@@ -27,7 +27,7 @@ app.use(requestLogger);
 
 // Health check
 app.get('/health', (req: any, res: any) => {
-  res.json({ 
+  res.status(200).json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
     version: '1.0.0'
@@ -50,18 +50,19 @@ app.use(errorHandler);
 // Start server
 async function startServer() {
   try {
-    // Initialize database
-    await connectDatabase();
-    
-    // Validate Solana connection
-    const solanaOk = await validateSolanaConnection();
-    if (!solanaOk) {
-      console.warn('Solana connection failed - some features may not work');
-    }
-    
     app.listen(PORT, () => {
       console.log(`🚀 AI Work Engine Backend running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
+    });
+    
+    // Initialize database (non-blocking)
+    connectDatabase().catch(err => {
+      console.warn('Database connection failed:', err.message);
+    });
+    
+    // Validate Solana connection (non-blocking)
+    validateSolanaConnection().catch(err => {
+      console.warn('Solana connection failed:', err.message);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
