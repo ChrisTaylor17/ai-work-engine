@@ -1,107 +1,74 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
-import WalletConnect from '../components/WalletConnect';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export default function Home() {
+  const [roomName, setRoomName] = useState('');
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { publicKey } = useWallet();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-      router.push('/ai/project-creator');
-    }
-  }, []);
-
-  const handleWalletConnect = async (walletAddress: string, signature: string) => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-work-engine-production.up.railway.app';
-      const response = await fetch(`${apiUrl}/api/auth/wallet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          walletAddress,
-          signature
-        })
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setIsAuthenticated(true);
-        
-        // Check if user has profile
-        if (!data.user.profile) {
-          router.push('/profile');
-        } else {
-          router.push('/ai/project-creator');
-        }
-      } else {
-        alert('Authentication failed: ' + data.error);
-      }
-    } catch (error) {
-      console.error('Authentication error:', error);
-      alert('Authentication failed');
+  const joinRoom = (room: string) => {
+    if (room.trim()) {
+      router.push(`/${room.toLowerCase().replace(/[^a-z0-9]/g, '')}`);
     }
   };
 
+  const quickRooms = ['builders', 'nft-creators', 'defi', 'solana', 'general'];
+
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 retro-glow">
-            AI Work Engine
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Connect. Collaborate. Create. Earn.
-          </p>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            Join the future of work where AI matches you with perfect teammates, 
-            manages project tokens, and rewards your contributions on the blockchain.
-          </p>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
+      <div className="max-w-md w-full space-y-8">
+        {/* Logo */}
+        <div className="text-center">
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-black font-bold text-2xl">C</span>
+          </div>
+          <h1 className="text-white font-light text-3xl tracking-widest mb-2">CONSILIENCE</h1>
+          <p className="text-white/50 text-sm">AI-powered crypto project builder & community</p>
         </div>
 
-        <div className="max-w-md mx-auto card">
-          <h2 className="text-2xl font-semibold text-center mb-6 text-white">
-            Connect Your Wallet
-          </h2>
-          <WalletConnect onConnect={handleWalletConnect} />
+        {/* Wallet */}
+        <div className="flex justify-center">
+          <WalletMultiButton className="!bg-white/10 hover:!bg-white/20 !border-white/20 !text-white !rounded-full" />
         </div>
 
-        <div className="mt-16 grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              🤖
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-white">AI Matching</h3>
-            <p className="text-gray-300">
-              Our AI finds the perfect teammates based on skills, interests, and availability.
-            </p>
+        {/* Room Entry */}
+        <div className="space-y-4">
+          <div>
+            <input
+              type="text"
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && joinRoom(roomName)}
+              placeholder="Enter room name..."
+              className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all text-center"
+            />
           </div>
           
           <div className="text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              ⛓️
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-white">Blockchain Tokens</h3>
-            <p className="text-gray-300">
-              Earn project equity through SPL tokens that represent your contributions.
-            </p>
+            <span className="text-white/30 text-xs">or join a popular room</span>
           </div>
-          
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              🚀
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-white">Fair Rewards</h3>
-            <p className="text-gray-300">
-              AI evaluates your work and allocates tokens transparently and fairly.
-            </p>
+
+          <div className="grid grid-cols-2 gap-2">
+            {quickRooms.map(room => (
+              <button
+                key={room}
+                onClick={() => joinRoom(room)}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-full px-4 py-2 text-white/70 hover:text-white text-sm transition-all"
+              >
+                {room}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="text-center space-y-2 pt-4">
+          <div className="text-white/40 text-xs space-y-1">
+            <div>• Chat with others building crypto projects</div>
+            <div>• AI helps create NFTs and tokens on Solana</div>
+            <div>• Share ideas and collaborate in real-time</div>
           </div>
         </div>
       </div>
