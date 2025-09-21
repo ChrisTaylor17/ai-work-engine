@@ -24,7 +24,8 @@ export default function Profile() {
 
   const handleProfileSubmit = async (profileData: any) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://powerful-acceptance-production.up.railway.app';
+      const response = await fetch(`${apiUrl}/api/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
