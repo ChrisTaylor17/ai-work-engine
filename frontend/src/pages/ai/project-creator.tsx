@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
-import { createWorkToken, createNFT } from '../../utils/solana';
+import { createWorkToken } from '../../utils/solana';
+import { createMetaplexNFT } from '../../utils/metaplex';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
@@ -58,8 +59,9 @@ Connect wallet for real blockchain transactions!`;
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
-            nftData = await createNFT({ publicKey, sendTransaction }, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
-            tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned);
+            nftData = await createMetaplexNFT({ publicKey, sendTransaction }, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+          } else if (lower.includes('create project') || lower.includes('start project')) {
+            tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned + 50);
           } else {
             tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned);
           }
@@ -98,9 +100,9 @@ Please check wallet and try again!`;
       }
       
       if (response === '' && nftData) {
-        response = `🎨 **SOLANA TOKEN CREATED (NFT STRUCTURE)**
+        response = `🎨 **REAL METAPLEX NFT CREATED!**
 
-✅ **VERIFIED ON BLOCKCHAIN**
+✅ **LIVE ON SOLANA WITH METADATA**
 
 🖼️ **NFT Details:**
 Name: ${nftData.name}
