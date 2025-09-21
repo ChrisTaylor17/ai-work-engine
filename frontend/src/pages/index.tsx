@@ -25,7 +25,7 @@ export default function Home() {
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
-      router.push('/projects');
+      router.push('/chat/general');
     }
   }, []);
 
@@ -54,7 +54,7 @@ export default function Home() {
         if (!data.user.profile) {
           router.push('/profile');
         } else {
-          router.push('/projects');
+          router.push('/chat/general');
         }
       } else {
         alert('Authentication failed: ' + data.error);
@@ -69,23 +69,23 @@ export default function Home() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+          <div className="min-h-screen bg-gray-900">
             <div className="container mx-auto px-4 py-16">
               <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
                   AI Work Engine
                 </h1>
-                <p className="text-xl text-gray-600 mb-8">
+                <p className="text-xl text-gray-300 mb-8">
                   Connect. Collaborate. Create. Earn.
                 </p>
-                <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                <p className="text-lg text-gray-400 max-w-2xl mx-auto">
                   Join the future of work where AI matches you with perfect teammates, 
                   manages project tokens, and rewards your contributions on the blockchain.
                 </p>
               </div>
 
-              <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-semibold text-center mb-6">
+              <div className="max-w-md mx-auto card">
+                <h2 className="text-2xl font-semibold text-center mb-6 text-white">
                   Connect Your Wallet
                 </h2>
                 <WalletConnect onConnect={handleWalletConnect} />
@@ -96,8 +96,8 @@ export default function Home() {
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     🤖
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">AI Matching</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-xl font-semibold mb-2 text-white">AI Matching</h3>
+                  <p className="text-gray-300">
                     Our AI finds the perfect teammates based on skills, interests, and availability.
                   </p>
                 </div>
@@ -106,8 +106,8 @@ export default function Home() {
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     ⛓️
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Blockchain Tokens</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-xl font-semibold mb-2 text-white">Blockchain Tokens</h3>
+                  <p className="text-gray-300">
                     Earn project equity through SPL tokens that represent your contributions.
                   </p>
                 </div>
@@ -116,8 +116,8 @@ export default function Home() {
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     🚀
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Fair Rewards</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-xl font-semibold mb-2 text-white">Fair Rewards</h3>
+                  <p className="text-gray-300">
                     AI evaluates your work and allocates tokens transparently and fairly.
                   </p>
                 </div>
