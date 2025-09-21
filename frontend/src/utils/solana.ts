@@ -1,4 +1,4 @@
-import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram } from '@solana/web3.js';
+import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram, TransactionInstruction } from '@solana/web3.js';
 import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID, createInitializeMintInstruction, MINT_SIZE, getMinimumBalanceForRentExemptMint, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, createMintToInstruction } from '@solana/spl-token';
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
@@ -97,21 +97,22 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     const mintKeypair = new (await import('@solana/web3.js')).Keypair();
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
-    // Create JSON metadata
-    const metadata = {
-      name: name,
-      description: description,
-      image: imageUrl,
-      attributes: [
-        { trait_type: "Created By", value: "AI Work Engine" },
-        { trait_type: "Type", value: "AI Generated" }
-      ]
-    };
+    // Find metadata PDA
+    const [metadataPDA] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('metadata'),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        mintKeypair.publicKey.toBuffer(),
+      ],
+      TOKEN_METADATA_PROGRAM_ID
+    );
 
     // Create transaction
     const transaction = new Transaction();
     transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
     transaction.feePayer = publicKey;
+    
+    // Add create mint account instruction
     transaction.add(
       SystemProgram.createAccount({
         fromPubkey: publicKey,
@@ -119,7 +120,11 @@ export const createNFT = async (wallet: any, name: string, description: string, 
         space: MINT_SIZE,
         lamports,
         programId: TOKEN_PROGRAM_ID,
-      }),
+      })
+    );
+
+    // Add initialize mint instruction
+    transaction.add(
       createInitializeMintInstruction(
         mintKeypair.publicKey,
         0, // 0 decimals for NFT
@@ -154,7 +159,33 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       )
     );
 
-    // Note: Metadata stored off-chain for simplicity
+    // Create metadata instruction
+    const createMetadataIx = new TransactionInstruction({
+      keys: [
+        { pubkey: metadataPDA, isSigner: false, isWritable: true },
+        { pubkey: mintKeypair.publicKey, isSigner: false, isWritable: false },
+        { pubkey: publicKey, isSigner: true, isWritable: false },
+        { pubkey: publicKey, isSigner: true, isWritable: true },
+        { pubkey: publicKey, isSigner: true, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        { pubkey: new PublicKey('Sysvar1nstructions1111111111111111111111111'), isSigner: false, isWritable: false },
+      ],
+      programId: TOKEN_METADATA_PROGRAM_ID,
+      data: Buffer.from([
+        33, // CreateMetadataAccountV3 discriminator
+        ...encodeString(name),
+        ...encodeString('AINFT'),
+        ...encodeString(description),
+        ...encodeString(imageUrl),
+        0, 0, // seller_fee_basis_points (0%)
+        1, // update_authority_is_signer
+        0, // is_mutable
+        0, 0, 0, 0, // collection (none)
+        0, 0, 0, 0, // uses (none)
+      ])
+    });
+
+    transaction.add(createMetadataIx);
 
     // Send transaction
     transaction.partialSign(mintKeypair);
@@ -172,13 +203,26 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       blockTime: Date.now(),
       slot: await connection.getSlot(),
       image: imageUrl,
-      metadata: metadata
+      metadataPDA: metadataPDA.toBase58()
     };
   } catch (error) {
     console.error('NFT creation failed:', error);
     throw error;
   }
 };
+
+// Helper function to encode strings for metadata
+function encodeString(str: string): number[] {
+  const encoded = Buffer.from(str, 'utf8');
+  const length = encoded.length;
+  return [
+    length & 0xff,
+    (length >> 8) & 0xff,
+    (length >> 16) & 0xff,
+    (length >> 24) & 0xff,
+    ...Array.from(encoded)
+  ];
+}
 
 export const getTokenBalance = async (walletAddress: string) => {
   try {
