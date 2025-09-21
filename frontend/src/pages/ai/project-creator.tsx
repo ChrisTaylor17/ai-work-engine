@@ -64,9 +64,26 @@ Connect wallet for real blockchain transactions!`;
             tokenData = await createWorkToken(wallet, tokensEarned);
           }
         } catch (error: any) {
-          response = `❌ **BLOCKCHAIN ERROR**
+          const errorMsg = error.message || error.toString();
+          
+          if (errorMsg.includes('insufficient funds') || errorMsg.includes('0x1')) {
+            response = `💰 **INSUFFICIENT SOL FOR TRANSACTION**
 
-Failed to create on Solana: ${error.message}
+❌ Your wallet needs SOL to pay transaction fees
+
+**Get Devnet SOL:**
+1. Visit: https://faucet.solana.com
+2. Enter your wallet address
+3. Request 2 SOL (free for testing)
+4. Wait 30 seconds, then try again
+
+💡 **Need help?** Each transaction costs ~0.01 SOL
+
+💰 **Demo tokens awarded:** +${tokensEarned} WORK`;
+          } else {
+            response = `❌ **BLOCKCHAIN ERROR**
+
+Failed to create on Solana: ${errorMsg}
 
 💡 **Common issues:**
 • Insufficient SOL for gas fees
@@ -76,20 +93,21 @@ Failed to create on Solana: ${error.message}
 💰 **Demo tokens awarded:** +${tokensEarned} WORK
 
 Please check wallet and try again!`;
+          }
         }
       }
       
       if (response === '' && nftData) {
-        response = `🎨 **SOLANA NFT CREATED!**
+        response = `🎨 **REAL SOLANA NFT CREATED!**
 
-✅ **BLOCKCHAIN SIMULATION**
+✅ **LIVE ON SOLANA DEVNET**
 
 🖼️ **NFT Details:**
 Name: ${nftData.name}
 Description: ${nftData.description}
 Mint Address: ${nftData.mintAddress}
 
-🔗 **Blockchain Data:**
+🔗 **Blockchain Proof:**
 Transaction: ${nftData.signature}
 Metadata URI: ${nftData.metadataUri}
 Slot: ${nftData.slot}
@@ -101,11 +119,11 @@ ${nftData.image}
 • NFT creation reward: +25 tokens
 • Chat participation: +${tokensEarned} tokens
 
-🔍 **Simulated Explorer Link:**
+🔍 **View on Solana Explorer:**
 https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
 
-✅ **Status:** BLOCKCHAIN SIMULATION
-Your NFT data is generated with realistic blockchain format!`;
+✅ **Status:** LIVE ON BLOCKCHAIN
+Your NFT is permanently stored on Solana!`;
       } else if (lower.includes('create project') || lower.includes('start project')) {
         response = `🚀 **SOLANA PROJECT TOKEN DEPLOYED!**
 
