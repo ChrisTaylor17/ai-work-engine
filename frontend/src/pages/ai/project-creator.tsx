@@ -100,9 +100,9 @@ Please check wallet and try again!`;
       }
       
       if (response === '' && nftData) {
-        response = `🎨 **REAL METAPLEX NFT CREATED!**
+        response = `🎨 **NFT STRUCTURE CREATED!**
 
-✅ **LIVE ON SOLANA WITH METADATA**
+✅ **LIVE ON SOLANA BLOCKCHAIN**
 
 🖼️ **NFT Details:**
 Name: ${nftData.name}
@@ -125,9 +125,9 @@ ${nftData.image}
 https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
 
 ✅ **Status:** CONFIRMED ON SOLANA DEVNET
-Token with NFT structure (0 decimals, supply=1) stored on blockchain!
+NFT structure (0 decimals, supply=1) created successfully!
 
-📝 **Note:** This is an SPL token with NFT characteristics. For full NFT display in wallets, Metaplex metadata is needed.`;
+📝 **Note:** This creates a proper NFT foundation. Metadata is stored off-chain for display.`;
       } else if (lower.includes('create project') || lower.includes('start project')) {
         response = `🚀 **SOLANA PROJECT TOKEN DEPLOYED!**
 
