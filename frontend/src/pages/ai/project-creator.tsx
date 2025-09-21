@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
+import { createWorkToken, createNFT } from '../../utils/solana';
 
 export default function ProjectCreator() {
   const [messages, setMessages] = useState([
     {
       id: 1,
       user: 'AI Project Creator',
-      message: 'I help you create new projects. Describe your idea and I will help you plan it.',
+      message: 'I create projects, tokens, and NFTs on Solana blockchain. Tell me what you want to build!',
       isAi: true,
       timestamp: new Date().toISOString()
     }
   ]);
   const [input, setInput] = useState('');
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMsg = {
@@ -26,18 +27,87 @@ export default function ProjectCreator() {
 
     setMessages(prev => [...prev, userMsg]);
     
-    setTimeout(() => {
-      let response = '';
+    setTimeout(async () => {
+      const tokensEarned = Math.floor(Math.random() * 15) + 10;
+      let tokenData;
+      let nftData;
       const lower = input.toLowerCase();
       
-      if (lower.includes('defi') || lower.includes('finance')) {
-        response = `DeFi project "${input}" analysis:\n\n🔧 TECH STACK:\n• Solidity smart contracts\n• React frontend\n• Web3 integration\n• Oracle price feeds\n\n👥 TEAM NEEDED:\n• Solidity dev (40% - 400 tokens)\n• Frontend dev (30% - 300 tokens)\n• Security auditor (20% - 200 tokens)\n• Product manager (10% - 100 tokens)\n\n⚡ NEXT STEPS:\n1. Create smart contract architecture\n2. Find Solidity developer\n3. Set up development environment\n\nType 'create project' to proceed!`;
-      } else if (lower.includes('nft') || lower.includes('marketplace')) {
-        response = `NFT project "${input}" breakdown:\n\n🎨 COMPONENTS:\n• Smart contract minting\n• Marketplace interface\n• Metadata storage (IPFS)\n• Payment processing\n\n💼 ROLES:\n• Solidity dev (35% - 350 tokens)\n• Frontend dev (25% - 250 tokens)\n• Designer (25% - 250 tokens)\n• Backend dev (15% - 150 tokens)\n\n🚀 TIMELINE: 8-10 weeks\n\nReady to start? Type 'find team'!`;
-      } else if (lower.includes('create project') || lower.includes('start')) {
-        response = `🎉 PROJECT CREATED!\n\nProject: "${input}"\nStatus: ACTIVE\nID: PROJ_${Date.now()}\n\n📋 TODO:\n• Post on team finder\n• Set up GitHub repo\n• Create project roadmap\n• Allocate initial tokens\n\n🔍 Finding team members now...\nCheck the Team Matcher for candidates!`;
+      // Create NFT if requested
+      if (lower.includes('nft') || lower.includes('art')) {
+        nftData = await createNFT(`AI Generated NFT`, `Created from: ${input}`);
+        tokenData = await createWorkToken(tokensEarned);
       } else {
-        response = `Analyzing "${input}"...\n\n🤖 AI ASSESSMENT:\n• Feasibility: HIGH\n• Market demand: STRONG\n• Technical complexity: MEDIUM\n\n💡 SUGGESTIONS:\n• Define core features first\n• Consider MVP approach\n• Plan token economics\n\nTell me more details or type 'create project' to proceed!`;
+        tokenData = await createWorkToken(tokensEarned);
+      }
+      
+      let response = '';
+      
+      if (nftData) {
+        response = `🎨 **METAPLEX NFT CREATED!**
+
+🖼️ **NFT Details:**
+Name: ${nftData.name}
+Description: ${nftData.description}
+Mint: ${nftData.mintAddress}
+
+🔗 **Blockchain Data:**
+Signature: ${nftData.signature}
+Metadata URI: ${nftData.metadataUri}
+Slot: ${nftData.slot}
+
+🖼️ **NFT Image:**
+${nftData.image}
+
+🎉 **BONUS: +${tokensEarned + 25} WORK TOKENS!**
+• NFT creation bonus: +25 tokens
+• Chat reward: +${tokensEarned} tokens
+
+🔍 **View NFT on Solana Explorer:**
+https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
+
+Your NFT is live on Solana with Metaplex metadata!`;
+      } else if (lower.includes('create project') || lower.includes('start project')) {
+        response = `🚀 **SOLANA PROJECT TOKEN DEPLOYED!**
+
+🎉 **SPL TOKEN CREATED FOR "${input}"**
+Project ID: PROJ_${Date.now()}
+
+🔗 **SOLANA BLOCKCHAIN DATA:**
+Mint Address: ${tokenData.mintAddress}
+Transaction: ${tokenData.signature}
+Block Time: ${new Date(tokenData.blockTime).toLocaleString()}
+Slot: ${tokenData.slot}
+
+💰 **TOKEN SUPPLY CREATED:**
+• Total Supply: 10,000 WORK tokens
+• Your Reward: ${tokensEarned + 50} tokens
+• Team Pool: 7,000 tokens (70%)
+• Creator Pool: 2,000 tokens (20%)
+
+🔍 **View on Solana Explorer:**
+https://explorer.solana.com/address/${tokenData.mintAddress}?cluster=devnet
+
+Your project tokens are live on Solana!`;
+      } else {
+        response = `🤖 **SOLANA TOKENS MINTED!**
+
+🎉 **SPL TOKENS CREATED:**
+Mint: ${tokenData.mintAddress}
+Amount: ${tokensEarned} WORK tokens
+Signature: ${tokenData.signature}
+
+🔗 **Solana Transaction:**
+https://explorer.solana.com/tx/${tokenData.signature}?cluster=devnet
+
+💡 **Try These Commands:**
+• "create nft" → Metaplex NFT + 50 WORK
+• "create defi project" → Project tokens + 75 WORK
+• "mint art" → AI generated NFT + 40 WORK
+
+💰 **Live Balance:** ${tokensEarned} WORK tokens
+
+All assets are real on Solana blockchain!`;
       }
       
       const aiMsg = {
@@ -48,6 +118,15 @@ export default function ProjectCreator() {
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, aiMsg]);
+      
+      // Update user data
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      currentUser.tokens = (currentUser.tokens || 0) + tokensEarned + (nftData ? 25 : 0);
+      if (nftData) {
+        currentUser.nfts = currentUser.nfts || [];
+        currentUser.nfts.push(nftData);
+      }
+      localStorage.setItem('user', JSON.stringify(currentUser));
     }, 1500);
 
     setInput('');
@@ -78,7 +157,7 @@ export default function ProjectCreator() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Describe your project idea..."
+              placeholder="Type: create nft, create project, mint art..."
               className="flex-1 input-field rounded-none px-4 py-2"
             />
             <button onClick={handleSend} className="btn-primary rounded-none">
