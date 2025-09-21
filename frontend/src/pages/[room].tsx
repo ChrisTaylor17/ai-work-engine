@@ -26,7 +26,7 @@ export default function Room() {
 
     // Add user to room
     const userAddress = publicKey?.toBase58().slice(0, 8) || 'Anonymous';
-    setUsers(prev => [...new Set([...prev, userAddress])]);
+    setUsers(prev => Array.from(new Set([...prev, userAddress])));
 
     // Poll for new messages every 2 seconds
     const interval = setInterval(() => {
