@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
-import { createWorkToken } from '../../utils/solana';
+import { createWorkToken, createNFT } from '../../utils/solana';
 
 export default function ChatRoom() {
   const router = useRouter();
@@ -53,10 +53,18 @@ export default function ChatRoom() {
     const tokensEarned = Math.floor(Math.random() * 10) + 5;
     
     setTimeout(async () => {
-      // Create tokens on Solana blockchain
-      const tokenData = await createWorkToken(tokensEarned);
+      let tokenData;
+      let nftData;
       
-      const aiResponse = getAiResponse(newMessage, room as string, tokensEarned, tokenData);
+      // Check if user wants to create NFT
+      if (newMessage.toLowerCase().includes('nft') || newMessage.toLowerCase().includes('create art')) {
+        nftData = await createNFT(`AI Generated Art`, `Created from: ${newMessage}`);
+        tokenData = await createWorkToken(tokensEarned);
+      } else {
+        tokenData = await createWorkToken(tokensEarned);
+      }
+      
+      const aiResponse = getAiResponse(newMessage, room as string, tokensEarned, tokenData, nftData);
       const aiMessage = {
         id: Date.now() + 1,
         user: 'AI Assistant',
@@ -68,17 +76,50 @@ export default function ChatRoom() {
       setMessages(prev => [...prev, aiMessage]);
       setIsAiTyping(false);
       
-      // Update user's token balance
+      // Update user's data
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       currentUser.tokens = (currentUser.tokens || 0) + tokensEarned;
       currentUser.lastMint = tokenData.mintAddress;
       currentUser.lastSignature = tokenData.signature;
+      if (nftData) {
+        currentUser.nfts = currentUser.nfts || [];
+        currentUser.nfts.push(nftData);
+      }
       localStorage.setItem('user', JSON.stringify(currentUser));
     }, 1500);
   };
 
-  const getAiResponse = (message: string, roomName: string, tokensEarned: number, tokenData: any) => {
+  const getAiResponse = (message: string, roomName: string, tokensEarned: number, tokenData: any, nftData?: any) => {
     const lowerMessage = message.toLowerCase();
+    
+    // NFT creation responses
+    if (nftData) {
+      return `🎨 **METAPLEX NFT CREATED!**
+
+🖼️ **NFT Details:**
+Name: ${nftData.name}
+Description: ${nftData.description}
+Mint: ${nftData.mintAddress}
+
+🔗 **Blockchain Data:**
+Signature: ${nftData.signature}
+Metadata URI: ${nftData.metadataUri}
+Slot: ${nftData.slot}
+
+🖼️ **NFT Image:**
+${nftData.image}
+
+🎉 **BONUS: +${tokensEarned + 25} WORK TOKENS!**
+• NFT creation bonus: +25 tokens
+• Chat reward: +${tokensEarned} tokens
+
+🔍 **View NFT on Solana Explorer:**
+https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
+
+📊 **Your NFT Collection:** ${(JSON.parse(localStorage.getItem('user') || '{}').nfts || []).length + 1} NFTs
+
+Your NFT is live on Solana with Metaplex metadata!`;
+    }
     
     // Token allocation responses
     if (lowerMessage.includes('allocate') || lowerMessage.includes('token')) {
@@ -204,20 +245,24 @@ https://explorer.solana.com/tx/${tokenData.signature}?cluster=devnet
 
 Processing: "${message}"
 
-💡 **Token Earning Commands:**
+💡 **Blockchain Commands:**
+• "create nft" → Metaplex NFT + 50 WORK
 • "create defi app" → New SPL token + 75 WORK
 • "allocate tokens" → Distribution + 50 WORK
-• "find team" → Matching + 25 WORK
+• "mint art" → AI generated NFT + 40 WORK
 
 💰 **Live Solana Balance:**
 ${(JSON.parse(localStorage.getItem('user') || '{}').tokens || 0) + tokensEarned} WORK tokens
 
-🚀 **Blockchain Rewards:**
-• Every message: 5-15 WORK tokens minted
-• Project creation: 50-150 WORK tokens
-• Team actions: 25-75 WORK tokens
+🎨 **NFT Collection:**
+${(JSON.parse(localStorage.getItem('user') || '{}').nfts || []).length} NFTs owned
 
-All tokens are real SPL tokens on Solana Devnet!`;
+🚀 **Blockchain Rewards:**
+• Every message: 5-15 WORK tokens
+• NFT creation: 25-50 WORK tokens
+• Project creation: 50-150 WORK tokens
+
+All assets are real on Solana with Metaplex!`;
   };
 
   return (
