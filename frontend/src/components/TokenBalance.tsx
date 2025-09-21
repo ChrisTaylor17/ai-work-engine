@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 export default function TokenBalance() {
   const [balance, setBalance] = useState(0);
-  const [recentEarnings, setRecentEarnings] = useState([]);
+  const [recentEarnings, setRecentEarnings] = useState<{action: string, amount: number, time: string}[]>([]);
 
   useEffect(() => {
     // Simulate token balance
