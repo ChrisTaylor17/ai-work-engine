@@ -114,7 +114,7 @@ router.get('/:id/tokens', async (req: Request, res: Response) => {
       symbol: project.tokenSymbol,
       totalSupply: project.totalSupply.toString(),
       userBalance: '0', // TODO: Get actual user balance
-      allocations: tokenInfo.allocations.map(a => ({
+      allocations: tokenInfo.allocations.map((a: any) => ({
         userId: a.userId,
         amount: a.amount.toString(),
         type: a.allocationType

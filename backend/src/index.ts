@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
@@ -40,7 +40,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/ai', aiRoutes);
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('*', (req: any, res: any) => {
   res.status(404).json({ error: 'Route not found' });
 });
 

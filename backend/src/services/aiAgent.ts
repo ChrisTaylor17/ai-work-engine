@@ -65,7 +65,7 @@ export class AIAgentService {
           role: 'system' as const,
           content: 'You are an AI agent for a decentralized work platform. Help users form projects, match with teammates, and manage token allocations.'
         },
-        ...history.reverse().map(h => ({
+        ...history.reverse().map((h: any) => ({
           role: h.role as 'user' | 'assistant',
           content: h.message
         })),

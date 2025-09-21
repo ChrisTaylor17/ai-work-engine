@@ -13,6 +13,7 @@ export interface CreateProjectData {
 export interface UpdateProjectData {
   status?: string;
   completedAt?: Date;
+  tokenMintAddress?: string;
 }
 
 export class ProjectModel {
