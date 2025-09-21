@@ -68,12 +68,20 @@ export const createMetaplexNFT = async (wallet: any, name: string, description: 
       )
     );
 
-    // Sign and send transaction (without metadata for now)
-    transaction.partialSign(mintKeypair);
-    const signature = await sendTransaction(transaction, connection);
-    
-    // Wait for confirmation
-    await connection.confirmTransaction(signature);
+    // Sign and send transaction with better error handling
+    try {
+      transaction.partialSign(mintKeypair);
+      const signature = await sendTransaction(transaction, connection, {
+        skipPreflight: false,
+        preflightCommitment: 'processed'
+      });
+      
+      // Wait for confirmation
+      await connection.confirmTransaction(signature, 'confirmed');
+    } catch (txError: any) {
+      console.error('Transaction failed:', txError);
+      throw new Error(`NFT creation failed: ${txError.message || 'Transaction error'}`);
+    }
 
     // Create metadata object (stored off-chain for now)
     const metadata = {
