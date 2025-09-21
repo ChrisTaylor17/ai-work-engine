@@ -27,10 +27,23 @@ export default function ProjectCreator() {
     setMessages(prev => [...prev, userMsg]);
     
     setTimeout(() => {
+      let response = '';
+      const lower = input.toLowerCase();
+      
+      if (lower.includes('defi') || lower.includes('finance')) {
+        response = `DeFi project "${input}" analysis:\n\n🔧 TECH STACK:\n• Solidity smart contracts\n• React frontend\n• Web3 integration\n• Oracle price feeds\n\n👥 TEAM NEEDED:\n• Solidity dev (40% - 400 tokens)\n• Frontend dev (30% - 300 tokens)\n• Security auditor (20% - 200 tokens)\n• Product manager (10% - 100 tokens)\n\n⚡ NEXT STEPS:\n1. Create smart contract architecture\n2. Find Solidity developer\n3. Set up development environment\n\nType 'create project' to proceed!`;
+      } else if (lower.includes('nft') || lower.includes('marketplace')) {
+        response = `NFT project "${input}" breakdown:\n\n🎨 COMPONENTS:\n• Smart contract minting\n• Marketplace interface\n• Metadata storage (IPFS)\n• Payment processing\n\n💼 ROLES:\n• Solidity dev (35% - 350 tokens)\n• Frontend dev (25% - 250 tokens)\n• Designer (25% - 250 tokens)\n• Backend dev (15% - 150 tokens)\n\n🚀 TIMELINE: 8-10 weeks\n\nReady to start? Type 'find team'!`;
+      } else if (lower.includes('create project') || lower.includes('start')) {
+        response = `🎉 PROJECT CREATED!\n\nProject: "${input}"\nStatus: ACTIVE\nID: PROJ_${Date.now()}\n\n📋 TODO:\n• Post on team finder\n• Set up GitHub repo\n• Create project roadmap\n• Allocate initial tokens\n\n🔍 Finding team members now...\nCheck the Team Matcher for candidates!`;
+      } else {
+        response = `Analyzing "${input}"...\n\n🤖 AI ASSESSMENT:\n• Feasibility: HIGH\n• Market demand: STRONG\n• Technical complexity: MEDIUM\n\n💡 SUGGESTIONS:\n• Define core features first\n• Consider MVP approach\n• Plan token economics\n\nTell me more details or type 'create project' to proceed!`;
+      }
+      
       const aiMsg = {
         id: Date.now() + 1,
         user: 'AI Project Creator',
-        message: `Great idea! For "${input}" project:\n\n📋 REQUIREMENTS:\n• Frontend: React/Next.js developer\n• Backend: Node.js/Express developer\n• Blockchain: Solidity developer\n• Design: UI/UX designer\n\n💰 ESTIMATED TOKENS: 500-750 WORK\n⏱️ TIMELINE: 6-8 weeks\n\nShall I create this project and start finding team members?`,
+        message: response,
         isAi: true,
         timestamp: new Date().toISOString()
       };

@@ -18,10 +18,10 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   const rooms = [
-    { id: 'general', name: '# general', icon: '💬' },
-    { id: 'projects', name: '# projects', icon: '🚀' },
-    { id: 'ai-help', name: '# ai-help', icon: '🤖' },
-    { id: 'token-talk', name: '# token-talk', icon: '💰' },
+    { id: 'general', name: '> general_chat', icon: '💬' },
+    { id: 'projects', name: '> project_hub', icon: '🚀' },
+    { id: 'ai-help', name: '> ai_terminal', icon: '🤖' },
+    { id: 'token-talk', name: '> token_exchange', icon: '💰' },
   ];
 
   const handleLogout = () => {
@@ -71,15 +71,15 @@ export default function Layout({ children }: LayoutProps) {
             </h3>
             <div className="sidebar-item" onClick={() => router.push('/ai/project-creator')}>
               <span className="mr-2">✨</span>
-              Project Creator
+              project_creator.exe
             </div>
             <div className="sidebar-item" onClick={() => router.push('/ai/token-allocator')}>
               <span className="mr-2">⚖️</span>
-              Token Allocator
+              token_allocator.exe
             </div>
             <div className="sidebar-item" onClick={() => router.push('/ai/team-matcher')}>
               <span className="mr-2">🎯</span>
-              Team Matcher
+              team_matcher.exe
             </div>
           </div>
 
@@ -89,11 +89,11 @@ export default function Layout({ children }: LayoutProps) {
             </h3>
             <div className="sidebar-item" onClick={() => router.push('/projects')}>
               <span className="mr-2">📋</span>
-              My Projects
+              my_projects.txt
             </div>
             <div className="sidebar-item" onClick={() => router.push('/profile')}>
               <span className="mr-2">👤</span>
-              Profile
+              user_profile.cfg
             </div>
           </div>
         </div>

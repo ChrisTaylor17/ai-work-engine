@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import ProfileSetup from '../components/ProfileSetup';
 
 export default function Profile() {
   const router = useRouter();
@@ -22,31 +21,7 @@ export default function Profile() {
     setLoading(false);
   }, []);
 
-  const handleProfileSubmit = async (profileData: any) => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-work-engine-production.up.railway.app';
-      const response = await fetch(`${apiUrl}/api/profile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(profileData)
-      });
 
-      if (response.ok) {
-        const updatedUser = await response.json();
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        router.push('/projects');
-      } else {
-        const error = await response.json();
-        alert('Profile update failed: ' + error.message);
-      }
-    } catch (error) {
-      console.error('Profile update error:', error);
-      alert('Profile update failed');
-    }
-  };
 
   if (loading) {
     return (
@@ -57,33 +32,28 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Complete Your Profile
-            </h1>
-            <p className="text-gray-600">
-              Tell us about your skills and interests so our AI can find the perfect projects for you.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <ProfileSetup 
-              onSubmit={handleProfileSubmit}
-              initialData={user?.profile}
-            />
-          </div>
-
-          <div className="text-center mt-6">
-            <button
-              onClick={() => router.push('/projects')}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              Skip for now →
-            </button>
-          </div>
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="card max-w-md w-full">
+        <h1 className="text-2xl font-bold text-white mb-6 font-mono retro-glow">
+          &gt; PROFILE_SETUP
+        </h1>
+        
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Your name..."
+            className="w-full input-field rounded-none px-4 py-2"
+          />
+          <textarea
+            placeholder="Your skills (e.g. React, Python, Design)..."
+            className="w-full input-field rounded-none px-4 py-2 h-24 resize-none"
+          />
+          <button
+            onClick={() => router.push('/ai/project-creator')}
+            className="w-full btn-primary rounded-none py-3"
+          >
+            CONTINUE_TO_AI
+          </button>
         </div>
       </div>
     </div>
