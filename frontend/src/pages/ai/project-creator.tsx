@@ -5,6 +5,60 @@ import { createMetaplexNFT } from '../../utils/metaplex';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
+// AI response generator
+function generateAIResponse(input: string): string {
+  const lower = input.toLowerCase();
+  
+  if (lower.includes('hello') || lower.includes('hi')) {
+    return `👋 **Hello!** I'm your AI Project Creator.
+
+I can help you create real blockchain assets on Solana:
+
+🎨 **"create nft"** - Generate AI art NFT
+🚀 **"create project"** - Launch project tokens
+💎 **"mint art"** - Create custom NFT
+
+What would you like to build today?`;
+  }
+  
+  if (lower.includes('help')) {
+    return `🤖 **AI Project Creator Help**
+
+**Blockchain Commands:**
+• "create nft" - Generate AI art NFT with metadata
+• "create project [name]" - Launch project tokens
+• "mint art" - Create custom NFT artwork
+
+**Requirements:**
+• Connect Phantom wallet
+• Have SOL for transaction fees (~0.01 SOL)
+• Confirm transactions in wallet
+
+**All assets are created on Solana Devnet!**`;
+  }
+  
+  if (lower.includes('thank')) {
+    return `🙏 **You're welcome!**
+
+Happy to help you build on Solana blockchain!
+
+Try creating an NFT or project token next! 🚀`;
+  }
+  
+  // Default AI response
+  return `🤖 **AI Project Creator**
+
+I understand you said: "${input}"
+
+I specialize in creating blockchain assets on Solana:
+
+🎨 **"create nft"** - AI generated NFT
+🚀 **"create project"** - Project tokens
+💎 **"mint art"** - Custom artwork NFT
+
+What would you like to create?`;
+}
+
 
 
 export default function ProjectCreator() {
@@ -41,7 +95,10 @@ export default function ProjectCreator() {
       
       let response = '';
       
-      if (!connected || !publicKey) {
+      // Only create blockchain assets for specific commands
+      const isBlockchainCommand = lower.includes('create nft') || lower.includes('create project') || lower.includes('mint art');
+      
+      if (isBlockchainCommand && (!connected || !publicKey)) {
         response = `⚠️ **WALLET NOT CONNECTED**
 
 To create real blockchain assets:
@@ -54,7 +111,7 @@ To create real blockchain assets:
 💰 **Demo tokens awarded:** +${tokensEarned} WORK
 
 Connect wallet for real blockchain transactions!`;
-      } else {
+      } else if (isBlockchainCommand && connected && publicKey) {
         try {
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
@@ -62,8 +119,6 @@ Connect wallet for real blockchain transactions!`;
             nftData = await createMetaplexNFT({ publicKey, sendTransaction }, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
           } else if (lower.includes('create project') || lower.includes('start project')) {
             tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned + 50);
-          } else {
-            tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned);
           }
         } catch (error: any) {
           const errorMsg = error.message || error.toString();
@@ -97,6 +152,9 @@ Failed to create on Solana: ${errorMsg}
 Please check wallet and try again!`;
           }
         }
+      } else {
+        // Regular AI responses for non-blockchain commands
+        response = generateAIResponse(input);
       }
       
       if (response === '' && nftData) {
@@ -150,25 +208,6 @@ Slot: ${tokenData?.slot || 'N/A'}
 https://explorer.solana.com/address/${tokenData?.mintAddress || 'N/A'}?cluster=devnet
 
 Your project tokens are live on Solana!`;
-      } else if (response === '') {
-        response = `🤖 **SOLANA TOKENS MINTED!**
-
-🎉 **SPL TOKENS CREATED:**
-Mint: ${tokenData?.mintAddress || 'N/A'}
-Amount: ${tokensEarned} WORK tokens
-Signature: ${tokenData?.signature || 'N/A'}
-
-🔗 **Solana Transaction:**
-https://explorer.solana.com/tx/${tokenData?.signature || 'N/A'}?cluster=devnet
-
-💡 **Try These Commands:**
-• "create nft" → Metaplex NFT + 50 WORK
-• "create defi project" → Project tokens + 75 WORK
-• "mint art" → AI generated NFT + 40 WORK
-
-💰 **Live Balance:** ${tokensEarned} WORK tokens
-
-All assets are real on Solana blockchain!`;
       }
       
       const aiMsg = {
@@ -180,14 +219,16 @@ All assets are real on Solana blockchain!`;
       };
       setMessages(prev => [...prev, aiMsg]);
       
-      // Update user data
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      currentUser.tokens = (currentUser.tokens || 0) + tokensEarned + (nftData ? 25 : 0);
-      if (nftData) {
-        currentUser.nfts = currentUser.nfts || [];
-        currentUser.nfts.push(nftData);
+      // Update user data only for blockchain commands
+      if (isBlockchainCommand && (tokenData || nftData)) {
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        currentUser.tokens = (currentUser.tokens || 0) + tokensEarned + (nftData ? 25 : 0);
+        if (nftData) {
+          currentUser.nfts = currentUser.nfts || [];
+          currentUser.nfts.push(nftData);
+        }
+        localStorage.setItem('user', JSON.stringify(currentUser));
       }
-      localStorage.setItem('user', JSON.stringify(currentUser));
     }, 1500);
 
     setInput('');
