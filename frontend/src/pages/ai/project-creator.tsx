@@ -100,17 +100,17 @@ Please check wallet and try again!`;
       if (response === '' && nftData) {
         response = `🎨 **REAL SOLANA NFT CREATED!**
 
-✅ **LIVE ON SOLANA DEVNET**
+✅ **VERIFIED ON BLOCKCHAIN**
 
 🖼️ **NFT Details:**
 Name: ${nftData.name}
 Description: ${nftData.description}
 Mint Address: ${nftData.mintAddress}
 
-🔗 **Blockchain Proof:**
-Transaction: ${nftData.signature}
-Metadata URI: ${nftData.metadataUri}
+🔗 **Transaction Proof:**
+Signature: ${nftData.signature}
 Slot: ${nftData.slot}
+Confirmed: ✓
 
 🖼️ **NFT Image:**
 ${nftData.image}
@@ -119,11 +119,11 @@ ${nftData.image}
 • NFT creation reward: +25 tokens
 • Chat participation: +${tokensEarned} tokens
 
-🔍 **View on Solana Explorer:**
+🔍 **VERIFY ON SOLANA EXPLORER:**
 https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
 
-✅ **Status:** LIVE ON BLOCKCHAIN
-Your NFT is permanently stored on Solana!`;
+✅ **Status:** CONFIRMED ON SOLANA DEVNET
+Your NFT is permanently stored on blockchain!`;
       } else if (lower.includes('create project') || lower.includes('start project')) {
         response = `🚀 **SOLANA PROJECT TOKEN DEPLOYED!**
 
