@@ -63,8 +63,6 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     const { nft } = await metaplex.nfts().create({
       uri: '',
       name: name,
-      description: description,
-      image: imageUrl,
       sellerFeeBasisPoints: 500, // 5% royalty
     });
 
