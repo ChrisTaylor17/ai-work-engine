@@ -1,0 +1,107 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AI Work Engine - Authentication API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/auth/wallet": {
+      "post": {
+        "summary": "Connect Solana wallet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "walletAddress": {
+                    "type": "string",
+                    "description": "Solana wallet public key"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Signed message for verification"
+                  }
+                },
+                "required": ["walletAddress", "signature"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet connected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid signature"
+          }
+        }
+      }
+    },
+    "/api/auth/verify": {
+      "get": {
+        "summary": "Verify authentication token",
+        "security": [{"BearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Token valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired token"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "walletAddress": {"type": "string"},
+          "isOnline": {"type": "boolean"},
+          "profile": {"$ref": "#/components/schemas/Profile"}
+        }
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "displayName": {"type": "string"},
+          "skills": {"type": "array", "items": {"type": "string"}},
+          "interests": {"type": "array", "items": {"type": "string"}},
+          "availability": {"type": "string", "enum": ["available", "busy", "offline"]}
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AI Work Engine - AI Agent API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/ai/chat": {
+      "post": {
+        "summary": "Chat with AI agent",
+        "security": [{"BearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {"type": "string"},
+                  "projectId": {"type": "string", "description": "Optional project context"}
+                },
+                "required": ["message"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AI response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {"type": "string"},
+                    "actions": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/AIAction"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/match": {
+      "post": {
+        "summary": "Request AI matching for project formation",
+        "security": [{"BearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectDescription": {"type": "string"},
+                  "requiredSkills": {"type": "array", "items": {"type": "string"}},
+                  "teamSize": {"type": "integer"}
+                },
+                "required": ["projectDescription"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Matching results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "matches": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/UserMatch"}
+                    },
+                    "confidence": {"type": "number"},
+                    "reasoning": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/evaluate": {
+      "post": {
+        "summary": "AI evaluation of work contribution",
+        "security": [{"BearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contributionId": {"type": "string"},
+                  "context": {"type": "string"}
+                },
+                "required": ["contributionId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluation complete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "score": {"type": "number"},
+                    "tokenReward": {"type": "string"},
+                    "reasoning": {"type": "string"},
+                    "ipfsHash": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AIAction": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string", "enum": ["create_project", "allocate_tokens", "match_users"]},
+          "parameters": {"type": "object"},
+          "requiresConfirmation": {"type": "boolean"}
+        }
+      },
+      "UserMatch": {
+        "type": "object",
+        "properties": {
+          "userId": {"type": "string"},
+          "walletAddress": {"type": "string"},
+          "skillMatch": {"type": "number"},
+          "availabilityScore": {"type": "number"},
+          "overallScore": {"type": "number"}
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

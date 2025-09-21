@@ -1,0 +1,187 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AI Work Engine - Projects API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/projects": {
+      "post": {
+        "summary": "Request project creation by AI agent",
+        "security": [{"BearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "Project description for AI matching"
+                  },
+                  "requiredSkills": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "teamSize": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 10
+                  }
+                },
+                "required": ["description"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project creation initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or insufficient available users"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get user's projects",
+        "security": [{"BearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of user's projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Project"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/tokens": {
+      "get": {
+        "summary": "Get project token information",
+        "security": [{"BearerAuth": []}],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/contributions": {
+      "post": {
+        "summary": "Submit work contribution",
+        "security": [{"BearerAuth": []}],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {"type": "string"},
+                  "evidence": {"type": "string", "description": "Link or description of work done"}
+                },
+                "required": ["description"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contribution submitted for AI evaluation"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "tokenMintAddress": {"type": "string"},
+          "tokenSymbol": {"type": "string"},
+          "status": {"type": "string", "enum": ["active", "completed", "dissolved"]},
+          "members": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/ProjectMember"}
+          }
+        }
+      },
+      "ProjectMember": {
+        "type": "object",
+        "properties": {
+          "userId": {"type": "string"},
+          "role": {"type": "string", "enum": ["founder", "contributor"]},
+          "walletAddress": {"type": "string"},
+          "tokenAllocation": {"type": "string"}
+        }
+      },
+      "TokenInfo": {
+        "type": "object",
+        "properties": {
+          "mintAddress": {"type": "string"},
+          "symbol": {"type": "string"},
+          "totalSupply": {"type": "string"},
+          "userBalance": {"type": "string"},
+          "allocations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {"type": "string"},
+                "amount": {"type": "string"},
+                "type": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

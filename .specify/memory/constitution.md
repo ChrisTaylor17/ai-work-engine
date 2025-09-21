@@ -1,50 +1,77 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: [CONSTITUTION_VERSION] → 1.0.0
+Modified principles: Initial creation
+Added sections: Core Principles, Blockchain Integration, AI Agent Standards, Governance
+Templates requiring updates: ✅ All templates aligned with new principles
+Follow-up TODOs: None
+-->
+
+# AI Work Engine Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. AI-First Architecture
+Every system component MUST be designed for AI agent interaction as the primary interface.
+Human interfaces are secondary adaptations of AI-native protocols. All APIs, data structures,
+and workflows MUST support autonomous AI decision-making and execution.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Blockchain Immutability
+All project formations, token allocations, and work agreements MUST be recorded on Solana blockchain.
+State changes require cryptographic verification. No critical project data exists solely in
+traditional databases - blockchain is the source of truth for all economic transactions.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Decentralized Coordination
+No single entity controls project formation or token distribution. AI agents operate under
+transparent algorithms with verifiable decision criteria. All matching and allocation logic
+MUST be auditable and reproducible.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Test-First Development (NON-NEGOTIABLE)
+TDD mandatory for all components: Tests written → User approved → Tests fail → Then implement.
+Red-Green-Refactor cycle strictly enforced. Blockchain interactions MUST have comprehensive
+test coverage including failure scenarios and economic edge cases.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Economic Transparency
+All token mechanics, fee structures, and economic incentives MUST be publicly documented
+and verifiable on-chain. No hidden fees or opaque algorithmic decisions affecting user
+economics. Smart contract code MUST be open source and audited.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Blockchain Integration Standards
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Solana Network Requirements
+- All smart contracts deployed on Solana mainnet for production
+- Devnet for testing and development environments
+- Program upgrades require multi-signature governance approval
+- Token standards follow SPL Token specifications
+- Transaction fees paid in SOL, project tokens used for governance only
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Economic Model Constraints
+- Maximum 5% platform fee on token transactions
+- AI agent operational costs funded through transparent fee structure
+- Project creators retain majority token allocation (minimum 51%)
+- Contributor rewards distributed automatically via smart contracts
+- No inflationary token mechanics without explicit community governance approval
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## AI Agent Standards
+
+### Decision Transparency
+AI agents MUST log all decision criteria and reasoning for project matching and token allocation.
+Decision logs stored on IPFS with blockchain hash references for immutability and auditability.
+
+### Bias Prevention
+Matching algorithms MUST be tested for demographic, geographic, and skill-based bias.
+Regular algorithmic audits required with public reporting of fairness metrics.
+
+### Human Override Capability
+Critical decisions (project dissolution, major token reallocations) require human confirmation.
+AI agents cannot autonomously execute actions above defined economic thresholds without
+multi-signature human approval.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other development practices and business decisions.
+Amendments require community governance vote with 67% approval threshold.
+All code changes MUST verify constitutional compliance before deployment.
+Economic parameters can be adjusted through governance without constitutional amendment.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-01-27
