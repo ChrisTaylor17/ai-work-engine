@@ -6,8 +6,18 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 app.use(express.json());
+
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, req.body);
+  next();
+});
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -19,11 +29,15 @@ app.get('/', (req, res) => {
 
 // Mock auth endpoint
 app.post('/api/auth/wallet', (req, res) => {
+  console.log('Auth request received:', req.body);
   const { walletAddress, signature } = req.body;
   
   if (!walletAddress || !signature) {
+    console.log('Missing wallet address or signature');
     return res.status(400).json({ error: 'Wallet address and signature required' });
   }
+  
+  console.log('Processing auth for wallet:', walletAddress);
 
   // Mock user data
   const user = {
