@@ -5,58 +5,58 @@ import { createMetaplexNFT } from '../../utils/metaplex';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
-// AI response generator
-function generateAIResponse(input: string): string {
+// AI response generator with OpenAI integration
+async function generateAIResponse(input: string): Promise<string> {
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: input }),
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.response;
+    }
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+  }
+  
+  // Fallback responses
   const lower = input.toLowerCase();
   
-  if (lower.includes('hello') || lower.includes('hi')) {
-    return `👋 **Hello!** I'm your AI Project Creator.
+  if (lower.includes('cool') || lower.includes('nice') || lower.includes('awesome')) {
+    return `😎 **Glad you like it!**
 
-I can help you create real blockchain assets on Solana:
+That NFT is now permanently stored on Solana blockchain. You can:
+
+• View it in your Phantom wallet
+• Transfer it to other wallets
+• List it on marketplaces
+
+Want to create another one? Try "create project" for tokens! 🚀`;
+  }
+  
+  if (lower.includes('hello') || lower.includes('hi')) {
+    return `👋 **Hello!** I'm your AI assistant that creates real blockchain assets.
+
+I can chat about anything, plus I have special powers:
 
 🎨 **"create nft"** - Generate AI art NFT
 🚀 **"create project"** - Launch project tokens
 💎 **"mint art"** - Create custom NFT
 
-What would you like to build today?`;
+What's on your mind?`;
   }
   
-  if (lower.includes('help')) {
-    return `🤖 **AI Project Creator Help**
+  // Default conversational response
+  return `I hear you! 😊
 
-**Blockchain Commands:**
-• "create nft" - Generate AI art NFT with metadata
-• "create project [name]" - Launch project tokens
-• "mint art" - Create custom NFT artwork
+I'm an AI that can chat about anything and also create real blockchain assets on Solana.
 
-**Requirements:**
-• Connect Phantom wallet
-• Have SOL for transaction fees (~0.01 SOL)
-• Confirm transactions in wallet
-
-**All assets are created on Solana Devnet!**`;
-  }
-  
-  if (lower.includes('thank')) {
-    return `🙏 **You're welcome!**
-
-Happy to help you build on Solana blockchain!
-
-Try creating an NFT or project token next! 🚀`;
-  }
-  
-  // Default AI response
-  return `🤖 **AI Project Creator**
-
-I understand you said: "${input}"
-
-I specialize in creating blockchain assets on Solana:
-
-🎨 **"create nft"** - AI generated NFT
-🚀 **"create project"** - Project tokens
-💎 **"mint art"** - Custom artwork NFT
-
-What would you like to create?`;
+Feel free to ask me questions or try commands like "create nft" to build something cool! 🚀`;
 }
 
 
@@ -154,7 +154,7 @@ Please check wallet and try again!`;
         }
       } else {
         // Regular AI responses for non-blockchain commands
-        response = generateAIResponse(input);
+        response = await generateAIResponse(input);
       }
       
       if (response === '' && nftData) {
