@@ -3,18 +3,18 @@ import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
-export const createWorkToken = async (wallet: any, amount: number) => {
+export const createWorkToken = async (walletAdapter: any, amount: number) => {
   try {
-    if (!wallet?.publicKey) {
+    if (!walletAdapter?.publicKey) {
       throw new Error('Wallet not connected');
     }
     
-    const publicKey = wallet.publicKey;
+    const publicKey = walletAdapter.publicKey;
 
     // Create new SPL token mint - user pays fees
     const mint = await createMint(
       connection,
-      wallet,
+      walletAdapter,
       publicKey,
       null,
       9
@@ -23,7 +23,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Get or create token account - user pays fees
     const tokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
-      wallet,
+      walletAdapter,
       mint,
       publicKey
     );
@@ -31,7 +31,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Mint tokens to user - user pays fees
     const signature = await mintTo(
       connection,
-      wallet,
+      walletAdapter,
       mint,
       tokenAccount.address,
       publicKey,
@@ -52,18 +52,18 @@ export const createWorkToken = async (wallet: any, amount: number) => {
   }
 };
 
-export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
+export const createNFT = async (walletAdapter: any, name: string, description: string, imageUrl: string) => {
   try {
-    if (!wallet?.publicKey) {
+    if (!walletAdapter?.publicKey) {
       throw new Error('Wallet not connected');
     }
     
-    const publicKey = wallet.publicKey;
+    const publicKey = walletAdapter.publicKey;
 
     // Create NFT using SPL token with supply of 1 - user pays fees
     const mint = await createMint(
       connection,
-      wallet,
+      walletAdapter,
       publicKey,
       publicKey,
       0 // 0 decimals for NFT
@@ -72,7 +72,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Get or create token account - user pays fees
     const tokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
-      wallet,
+      walletAdapter,
       mint,
       publicKey
     );
@@ -80,7 +80,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Mint 1 NFT to user - user pays fees
     const signature = await mintTo(
       connection,
-      wallet,
+      walletAdapter,
       mint,
       tokenAccount.address,
       publicKey,

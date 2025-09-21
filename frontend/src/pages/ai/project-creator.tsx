@@ -58,10 +58,10 @@ Connect wallet for real blockchain transactions!`;
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
-            nftData = await createNFT({ publicKey, sendTransaction: wallet?.adapter?.sendTransaction }, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
-            tokenData = await createWorkToken({ publicKey, sendTransaction: wallet?.adapter?.sendTransaction }, tokensEarned);
+            nftData = await createNFT(wallet?.adapter, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+            tokenData = await createWorkToken(wallet?.adapter, tokensEarned);
           } else {
-            tokenData = await createWorkToken({ publicKey, sendTransaction: wallet?.adapter?.sendTransaction }, tokensEarned);
+            tokenData = await createWorkToken(wallet?.adapter, tokensEarned);
           }
         } catch (error: any) {
           const errorMsg = error.message || error.toString();
