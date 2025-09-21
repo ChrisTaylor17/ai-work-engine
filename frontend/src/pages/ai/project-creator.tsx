@@ -1,25 +1,13 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
 import { createWorkToken, createNFT } from '../../utils/solana';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 
 
 export default function ProjectCreator() {
-  const [connected, setConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState('');
-
-  const connectWallet = async () => {
-    try {
-      const { solana } = window as any;
-      if (solana) {
-        const response = await solana.connect();
-        setWalletAddress(response.publicKey.toString());
-        setConnected(true);
-      }
-    } catch (error) {
-      console.error('Wallet connection failed:', error);
-    }
-  };
+  const { wallet, connected } = useWallet();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -70,10 +58,10 @@ Connect wallet for real blockchain transactions!`;
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
-            nftData = await createNFT(walletAddress, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
-            tokenData = await createWorkToken(walletAddress, tokensEarned);
+            nftData = await createNFT(wallet, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+            tokenData = await createWorkToken(wallet, tokensEarned);
           } else {
-            tokenData = await createWorkToken(walletAddress, tokensEarned);
+            tokenData = await createWorkToken(wallet, tokensEarned);
           }
         } catch (error: any) {
           response = `❌ **BLOCKCHAIN ERROR**
@@ -203,15 +191,7 @@ All assets are real on Solana blockchain!`;
 
         <div className="bg-black border-t border-white p-4">
           <div className="mb-3">
-            {!connected ? (
-              <button onClick={connectWallet} className="btn-primary rounded-none">
-                Connect Phantom Wallet
-              </button>
-            ) : (
-              <div className="text-green-400 font-mono text-sm">
-                Connected: {walletAddress.slice(0, 8)}...{walletAddress.slice(-4)}
-              </div>
-            )}
+            <WalletMultiButton className="!bg-white !text-black !font-mono !rounded-none" />
           </div>
           <div className="flex space-x-3">
             <input
