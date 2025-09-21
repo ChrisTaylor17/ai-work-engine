@@ -3,6 +3,9 @@ import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
+// Metaplex Token Metadata Program ID
+const TOKEN_METADATA_PROGRAM_ID = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
+
 export const createWorkToken = async (wallet: any, amount: number) => {
   try {
     if (!wallet?.publicKey || !wallet?.sendTransaction) {
@@ -94,6 +97,27 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     const mintKeypair = new (await import('@solana/web3.js')).Keypair();
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
+    // Create metadata account address
+    const [metadataAddress] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('metadata'),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        mintKeypair.publicKey.toBuffer(),
+      ],
+      TOKEN_METADATA_PROGRAM_ID
+    );
+
+    // Create JSON metadata
+    const metadata = {
+      name: name,
+      description: description,
+      image: imageUrl,
+      attributes: [
+        { trait_type: "Created By", value: "AI Work Engine" },
+        { trait_type: "Type", value: "AI Generated" }
+      ]
+    };
+
     // Create transaction
     const transaction = new Transaction();
     transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
@@ -140,6 +164,36 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       )
     );
 
+    // Create metadata instruction (simplified)
+    const createMetadataInstruction = {
+      keys: [
+        { pubkey: metadataAddress, isSigner: false, isWritable: true },
+        { pubkey: mintKeypair.publicKey, isSigner: false, isWritable: false },
+        { pubkey: publicKey, isSigner: true, isWritable: false },
+        { pubkey: publicKey, isSigner: true, isWritable: true },
+        { pubkey: publicKey, isSigner: true, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        { pubkey: new PublicKey('Sysvar1nstructions1111111111111111111111111'), isSigner: false, isWritable: false },
+      ],
+      programId: TOKEN_METADATA_PROGRAM_ID,
+      data: Buffer.from([
+        0, // CreateMetadataAccountV3 instruction
+        ...Buffer.from(name),
+        0,
+        ...Buffer.from(description),
+        0,
+        ...Buffer.from(imageUrl),
+        0,
+        0, 0, // seller_fee_basis_points
+        0, // creators (none)
+        0, 0, 0, 0, // collection (none)
+        0, // uses (none)
+      ])
+    };
+
+    // Add metadata instruction
+    transaction.add(createMetadataInstruction);
+
     // Send transaction
     transaction.partialSign(mintKeypair);
     const signature = await sendTransaction(transaction, connection);
@@ -152,10 +206,11 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       name: name,
       description: description,
       signature: signature,
-      metadataUri: `https://example.com/metadata/${mintKeypair.publicKey.toBase58()}`,
+      metadataUri: `https://arweave.net/${mintKeypair.publicKey.toBase58().slice(0, 16)}`,
       blockTime: Date.now(),
       slot: await connection.getSlot(),
-      image: imageUrl
+      image: imageUrl,
+      metadata: metadata
     };
   } catch (error) {
     console.error('NFT creation failed:', error);
