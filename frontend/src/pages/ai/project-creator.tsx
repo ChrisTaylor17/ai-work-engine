@@ -26,52 +26,72 @@ async function generateAIResponse(input: string): Promise<string> {
     console.error('OpenAI API error:', error);
   }
   
-  // Fallback responses
+  // Enhanced fallback responses for specific requests
   const lower = input.toLowerCase();
+  
+  if (lower.includes('white paper') || lower.includes('whitepaper')) {
+    return `📝 **Creating Whitepaper...**
+
+# AI Work Engine Whitepaper
+
+## Executive Summary
+AI Work Engine is a revolutionary platform that combines artificial intelligence with blockchain technology to create real digital assets on Solana.
+
+## Technology Stack
+- **Blockchain**: Solana (high-speed, low-cost)
+- **AI**: GPT-powered conversational interface
+- **Assets**: SPL tokens and NFTs with real ownership
+
+## Key Features
+1. **Real Asset Creation** - Generate actual blockchain assets
+2. **AI-Powered Interface** - Natural language commands
+3. **Instant Deployment** - Assets live on Solana in seconds
+
+## Tokenomics
+- WORK tokens reward user participation
+- NFTs provide unique digital ownership
+- All assets transferable and tradeable
+
+## Roadmap
+- Q1: Enhanced metadata support
+- Q2: Marketplace integration
+- Q3: Advanced AI features
+
+Want me to expand on any section? 🚀`;
+  }
+  
+  if (lower.includes('token') && lower.includes('actually')) {
+    return `🔍 **You're absolutely right!**
+
+What we're creating is technically an SPL token with NFT characteristics:
+
+• **0 decimals** - Can't be divided
+• **Supply of 1** - Only one exists
+• **Freeze authority** - Can control transfers
+
+For true NFT display in wallets, we'd need Metaplex metadata. The current implementation creates the foundation structure that can be enhanced with proper metadata later.
+
+Would you like me to explain more about Solana token standards? 🤓`;
+  }
   
   if (lower.includes('cool') || lower.includes('nice') || lower.includes('awesome')) {
     return `😎 **Glad you like it!**
 
-That NFT is now permanently stored on Solana blockchain. You can:
+That asset is now permanently stored on Solana blockchain. You can:
 
 • View it in your Phantom wallet
 • Transfer it to other wallets
-• List it on marketplaces
+• Verify on Solana Explorer
 
-Want to create another one? Try "create project" for tokens! 🚀`;
-  }
-  
-  if (lower.includes('what') || lower.includes('how') || lower.includes('why')) {
-    return `🤔 **Great question!**
-
-I'm an AI that can chat about anything AND create real blockchain assets on Solana.
-
-I can discuss topics, answer questions, or create:
-• NFTs with "create nft"
-• Project tokens with "create project"
-• Custom art with "mint art"
-
-What would you like to know or build? 🚀`;
-  }
-  
-  if (lower.includes('hello') || lower.includes('hi')) {
-    return `👋 **Hello!** I'm your AI assistant that creates real blockchain assets.
-
-I can chat about anything, plus I have special powers:
-
-🎨 **"create nft"** - Generate AI art NFT
-🚀 **"create project"** - Launch project tokens
-💎 **"mint art"** - Create custom NFT
-
-What's on your mind?`;
+Want to create something else? 🚀`;
   }
   
   // Default conversational response
-  return `I hear you! 😊
+  return `I can help with that! 😊
 
-I'm an AI that can chat about anything and also create real blockchain assets on Solana.
+I'm an AI assistant that can create content, answer questions, AND build real blockchain assets.
 
-Feel free to ask me questions or try commands like "create nft" to build something cool! 🚀`;
+What specifically would you like me to help you create or explain?`;
 }
 
 
