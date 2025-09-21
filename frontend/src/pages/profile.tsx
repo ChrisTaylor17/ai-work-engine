@@ -24,7 +24,7 @@ export default function Profile() {
 
   const handleProfileSubmit = async (profileData: any) => {
     try {
-      const response = await fetch('/api/profile', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

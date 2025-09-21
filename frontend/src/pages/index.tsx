@@ -31,7 +31,7 @@ export default function Home() {
 
   const handleWalletConnect = async (walletAddress: string, signature: string) => {
     try {
-      const response = await fetch('/api/auth/wallet', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/wallet`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
