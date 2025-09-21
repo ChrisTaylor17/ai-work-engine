@@ -58,10 +58,13 @@ export default function ChatRoom() {
       
       // Check if user wants to create NFT
       if (newMessage.toLowerCase().includes('nft') || newMessage.toLowerCase().includes('create art')) {
-        nftData = await createNFT(`AI Generated Art`, `Created from: ${newMessage}`);
-        tokenData = await createWorkToken(tokensEarned);
+        const wallet = (window as any).solana;
+        const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
+        nftData = await createNFT(wallet, `AI Generated Art`, `Created from: ${newMessage}`, imageUrl);
+        tokenData = await createWorkToken(wallet, tokensEarned);
       } else {
-        tokenData = await createWorkToken(tokensEarned);
+        const wallet = (window as any).solana;
+        tokenData = await createWorkToken(wallet, tokensEarned);
       }
       
       const aiResponse = getAiResponse(newMessage, room as string, tokensEarned, tokenData, nftData);
