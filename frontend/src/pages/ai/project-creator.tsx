@@ -39,7 +39,7 @@ export default function ProjectCreator() {
       
       let response = '';
       
-      if (!connected || !wallet) {
+      if (!connected || !wallet?.adapter?.publicKey) {
         response = `⚠️ **WALLET NOT CONNECTED**
 
 To create real blockchain assets:
@@ -57,10 +57,10 @@ Connect wallet for real blockchain transactions!`;
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
-            nftData = await createNFT(wallet, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
-            tokenData = await createWorkToken(wallet, tokensEarned);
+            nftData = await createNFT(wallet.adapter, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+            tokenData = await createWorkToken(wallet.adapter, tokensEarned);
           } else {
-            tokenData = await createWorkToken(wallet, tokensEarned);
+            tokenData = await createWorkToken(wallet.adapter, tokensEarned);
           }
         } catch (error: any) {
           response = `❌ **BLOCKCHAIN ERROR**
