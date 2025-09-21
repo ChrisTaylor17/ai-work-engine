@@ -76,7 +76,7 @@ export default function ChatRoom() {
 4. **Token allocation** - Fair distribution based on contributions
 5. **Launch** - Start building together!
 
-Try: "Create a DeFi project" or "I need a mobile app team"`;
+Try: &quot;Create a DeFi project&quot; or &quot;I need a mobile app team&quot;`;
       }
       
       if (lowerMessage.includes('token') || lowerMessage.includes('allocation')) {
@@ -87,11 +87,11 @@ Try: "Create a DeFi project" or "I need a mobile app team"`;
 • **Time tracking** - Fair compensation for time invested
 • **Milestone bonuses** - Extra tokens for hitting goals
 
-Example: "Allocate tokens for our NFT marketplace project"`;
+Example: &quot;Allocate tokens for our NFT marketplace project&quot;`;
       }
     }
     
-    return `I understand you said "${message}". How can I help you with:
+    return `I understand you said &quot;${message}&quot;. How can I help you with:
 
 🚀 **Project Creation** - Build something amazing
 ⚖️ **Token Allocation** - Fair reward distribution  
@@ -169,7 +169,7 @@ Just ask me anything!`;
         </div>
         
         <div className="mt-2 text-xs text-gray-500">
-          💡 Try: "Create a new project", "Allocate tokens", or "Find team members"
+          💡 Try: &quot;Create a new project&quot;, &quot;Allocate tokens&quot;, or &quot;Find team members&quot;
         </div>
       </div>
     </Layout>
