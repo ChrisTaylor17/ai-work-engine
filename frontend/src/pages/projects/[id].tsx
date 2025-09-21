@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import TokenBalance from '../../components/TokenBalance';
-import AIChat from '../../components/AIChat';
 
 export default function ProjectDetail() {
   const router = useRouter();
@@ -199,12 +198,17 @@ export default function ProjectDetail() {
 
           <div className="lg:col-span-1 space-y-6">
             {user && (
-              <TokenBalance projectId={project.id} userId={user.id} />
+              <TokenBalance />
             )}
 
             <div>
               <h2 className="text-lg font-semibold mb-4">Project AI Assistant</h2>
-              <AIChat projectId={project.id} />
+              <div className="card">
+                <h3 className="text-white font-mono mb-4">[PROJECT_AI]</h3>
+                <div className="text-gray-400 font-mono text-sm">
+                  AI assistant for project #{project.id}
+                </div>
+              </div>
             </div>
           </div>
         </div>
