@@ -3,11 +3,13 @@ import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
-export const createWorkToken = async (wallet: any, amount: number) => {
+export const createWorkToken = async (walletAddress: string, amount: number) => {
   try {
-    if (!wallet?.publicKey) {
+    if (!walletAddress) {
       throw new Error('Wallet not connected');
     }
+
+    const userPublicKey = new PublicKey(walletAddress);
 
     // Create keypair for payer (temporary solution)
     const payer = Keypair.generate();
@@ -23,7 +25,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     const mint = await createMint(
       connection,
       payer,
-      wallet.publicKey,
+      userPublicKey,
       null,
       9
     );
@@ -33,7 +35,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
       connection,
       payer,
       mint,
-      wallet.publicKey
+      userPublicKey
     );
 
     // Mint tokens to user
@@ -60,11 +62,13 @@ export const createWorkToken = async (wallet: any, amount: number) => {
   }
 };
 
-export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
+export const createNFT = async (walletAddress: string, name: string, description: string, imageUrl: string) => {
   try {
-    if (!wallet?.publicKey) {
+    if (!walletAddress) {
       throw new Error('Wallet not connected');
     }
+
+    const userPublicKey = new PublicKey(walletAddress);
 
     // Create keypair for payer (temporary solution)
     const payer = Keypair.generate();
@@ -80,8 +84,8 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     const mint = await createMint(
       connection,
       payer,
-      wallet.publicKey,
-      wallet.publicKey,
+      userPublicKey,
+      userPublicKey,
       0 // 0 decimals for NFT
     );
 
@@ -90,7 +94,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       connection,
       payer,
       mint,
-      wallet.publicKey
+      userPublicKey
     );
 
     // Mint 1 NFT to user
