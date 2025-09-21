@@ -1,6 +1,5 @@
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { createMint, getOrCreateAssociatedTokenAccount, mintTo } from '@solana/spl-token';
-import { Metaplex, keypairIdentity, walletAdapterIdentity } from '@metaplex-foundation/js';
+import { Connection, PublicKey, LAMPORTS_PER_SOL, Keypair, SystemProgram, Transaction } from '@solana/web3.js';
+import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
@@ -57,22 +56,39 @@ export const createNFT = async (wallet: any, name: string, description: string, 
       throw new Error('Wallet not connected');
     }
 
-    const metaplex = Metaplex.make(connection)
-      .use(walletAdapterIdentity(wallet));
+    // Create a simple NFT using SPL token with supply of 1
+    const mint = await createMint(
+      connection,
+      wallet,
+      wallet.publicKey,
+      wallet.publicKey,
+      0 // 0 decimals for NFT
+    );
 
-    // Create NFT without metadata upload (simplified)
-    const { nft } = await metaplex.nfts().create({
-      uri: '',
-      name: name,
-      sellerFeeBasisPoints: 500,
-    });
+    // Get or create token account
+    const tokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      wallet,
+      mint,
+      wallet.publicKey
+    );
+
+    // Mint 1 NFT to user
+    const signature = await mintTo(
+      connection,
+      wallet,
+      mint,
+      tokenAccount.address,
+      wallet.publicKey,
+      1
+    );
 
     return {
-      mintAddress: nft.address.toBase58(),
+      mintAddress: mint.toBase58(),
       name: name,
       description: description,
-      signature: nft.mint.address.toBase58(),
-      metadataUri: `https://example.com/metadata/${nft.address.toBase58()}`,
+      signature: signature,
+      metadataUri: `https://example.com/metadata/${mint.toBase58()}`,
       blockTime: Date.now(),
       slot: await connection.getSlot(),
       image: imageUrl

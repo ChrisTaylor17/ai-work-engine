@@ -39,7 +39,7 @@ export default function ProjectCreator() {
       
       let response = '';
       
-      if (!connected || !wallet?.adapter?.publicKey) {
+      if (!connected || !wallet?.publicKey) {
         response = `⚠️ **WALLET NOT CONNECTED**
 
 To create real blockchain assets:
@@ -57,10 +57,10 @@ Connect wallet for real blockchain transactions!`;
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
-            nftData = await createNFT(wallet.adapter, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
-            tokenData = await createWorkToken(wallet.adapter, tokensEarned);
+            nftData = await createNFT(wallet, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+            tokenData = await createWorkToken(wallet, tokensEarned);
           } else {
-            tokenData = await createWorkToken(wallet.adapter, tokensEarned);
+            tokenData = await createWorkToken(wallet, tokensEarned);
           }
         } catch (error: any) {
           response = `❌ **BLOCKCHAIN ERROR**
@@ -79,16 +79,16 @@ Please check wallet and try again!`;
       }
       
       if (response === '' && nftData) {
-        response = `🎨 **REAL METAPLEX NFT CREATED!**
+        response = `🎨 **SOLANA NFT CREATED!**
 
-✅ **LIVE ON SOLANA DEVNET**
+✅ **BLOCKCHAIN SIMULATION**
 
 🖼️ **NFT Details:**
 Name: ${nftData.name}
 Description: ${nftData.description}
 Mint Address: ${nftData.mintAddress}
 
-🔗 **Blockchain Proof:**
+🔗 **Blockchain Data:**
 Transaction: ${nftData.signature}
 Metadata URI: ${nftData.metadataUri}
 Slot: ${nftData.slot}
@@ -100,11 +100,11 @@ ${nftData.image}
 • NFT creation reward: +25 tokens
 • Chat participation: +${tokensEarned} tokens
 
-🔍 **View on Solana Explorer:**
+🔍 **Simulated Explorer Link:**
 https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
 
-✅ **Status:** LIVE ON BLOCKCHAIN
-Your NFT is permanently stored on Solana!`;
+✅ **Status:** BLOCKCHAIN SIMULATION
+Your NFT data is generated with realistic blockchain format!`;
       } else if (lower.includes('create project') || lower.includes('start project')) {
         response = `🚀 **SOLANA PROJECT TOKEN DEPLOYED!**
 
