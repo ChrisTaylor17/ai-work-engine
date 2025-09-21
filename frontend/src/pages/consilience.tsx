@@ -5,7 +5,7 @@ import { createRealNFT } from '../utils/nft';
 
 export default function Consilience() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Array<{role: string, content: string, id: number}>>([]);
   const [loading, setLoading] = useState(false);
   const { connected, publicKey, sendTransaction } = useWallet();
 
