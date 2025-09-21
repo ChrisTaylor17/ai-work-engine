@@ -5,16 +5,16 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 export const createWorkToken = async (wallet: any, amount: number) => {
   try {
-    if (!wallet?.adapter?.publicKey) {
+    if (!wallet?.publicKey) {
       throw new Error('Wallet not connected');
     }
     
-    const publicKey = wallet.adapter.publicKey;
+    const publicKey = wallet.publicKey;
 
     // Create new SPL token mint - user pays fees
     const mint = await createMint(
       connection,
-      wallet.adapter,
+      wallet,
       publicKey,
       null,
       9
@@ -23,7 +23,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Get or create token account - user pays fees
     const tokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
-      wallet.adapter,
+      wallet,
       mint,
       publicKey
     );
@@ -31,7 +31,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Mint tokens to user - user pays fees
     const signature = await mintTo(
       connection,
-      wallet.adapter,
+      wallet,
       mint,
       tokenAccount.address,
       publicKey,
@@ -54,16 +54,16 @@ export const createWorkToken = async (wallet: any, amount: number) => {
 
 export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
   try {
-    if (!wallet?.adapter?.publicKey) {
+    if (!wallet?.publicKey) {
       throw new Error('Wallet not connected');
     }
     
-    const publicKey = wallet.adapter.publicKey;
+    const publicKey = wallet.publicKey;
 
     // Create NFT using SPL token with supply of 1 - user pays fees
     const mint = await createMint(
       connection,
-      wallet.adapter,
+      wallet,
       publicKey,
       publicKey,
       0 // 0 decimals for NFT
@@ -72,7 +72,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Get or create token account - user pays fees
     const tokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
-      wallet.adapter,
+      wallet,
       mint,
       publicKey
     );
@@ -80,7 +80,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Mint 1 NFT to user - user pays fees
     const signature = await mintTo(
       connection,
-      wallet.adapter,
+      wallet,
       mint,
       tokenAccount.address,
       publicKey,
