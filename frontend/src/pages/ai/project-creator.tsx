@@ -33,40 +33,77 @@ export default function ProjectCreator() {
       let nftData;
       const lower = input.toLowerCase();
       
-      // Create NFT if requested
-      if (lower.includes('nft') || lower.includes('art')) {
-        nftData = await createNFT(`AI Generated NFT`, `Created from: ${input}`);
-        tokenData = await createWorkToken(tokensEarned);
+      // Get connected wallet
+      const wallet = (window as any).solana;
+      
+      if (!wallet || !wallet.isConnected) {
+        response = `⚠️ **WALLET NOT CONNECTED**
+
+To create real blockchain assets:
+
+1. Install Phantom wallet
+2. Connect wallet to this site
+3. Fund wallet with SOL for gas fees
+4. Try your command again
+
+💰 **Demo tokens awarded:** +${tokensEarned} WORK
+
+Connect wallet for real blockchain transactions!`;
       } else {
-        tokenData = await createWorkToken(tokensEarned);
+        try {
+          // Create NFT if requested
+          if (lower.includes('nft') || lower.includes('art')) {
+            const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
+            nftData = await createNFT(wallet, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+            tokenData = await createWorkToken(wallet, tokensEarned);
+          } else {
+            tokenData = await createWorkToken(wallet, tokensEarned);
+          }
+        } catch (error) {
+          response = `❌ **BLOCKCHAIN ERROR**
+
+Failed to create on Solana: ${error.message}
+
+💡 **Common issues:**
+• Insufficient SOL for gas fees
+• Wallet not properly connected
+• Network congestion
+
+💰 **Demo tokens awarded:** +${tokensEarned} WORK
+
+Please check wallet and try again!`;
+        }
       }
       
       let response = '';
       
       if (nftData) {
-        response = `🎨 **METAPLEX NFT CREATED!**
+        response = `🎨 **REAL METAPLEX NFT CREATED!**
+
+✅ **LIVE ON SOLANA DEVNET**
 
 🖼️ **NFT Details:**
 Name: ${nftData.name}
 Description: ${nftData.description}
-Mint: ${nftData.mintAddress}
+Mint Address: ${nftData.mintAddress}
 
-🔗 **Blockchain Data:**
-Signature: ${nftData.signature}
+🔗 **Blockchain Proof:**
+Transaction: ${nftData.signature}
 Metadata URI: ${nftData.metadataUri}
 Slot: ${nftData.slot}
 
 🖼️ **NFT Image:**
 ${nftData.image}
 
-🎉 **BONUS: +${tokensEarned + 25} WORK TOKENS!**
-• NFT creation bonus: +25 tokens
-• Chat reward: +${tokensEarned} tokens
+🎉 **EARNED: +${tokensEarned + 25} WORK TOKENS!**
+• NFT creation reward: +25 tokens
+• Chat participation: +${tokensEarned} tokens
 
-🔍 **View NFT on Solana Explorer:**
+🔍 **View on Solana Explorer:**
 https://explorer.solana.com/address/${nftData.mintAddress}?cluster=devnet
 
-Your NFT is live on Solana with Metaplex metadata!`;
+✅ **Status:** LIVE ON BLOCKCHAIN
+Your NFT is permanently stored on Solana!`;
       } else if (lower.includes('create project') || lower.includes('start project')) {
         response = `🚀 **SOLANA PROJECT TOKEN DEPLOYED!**
 
