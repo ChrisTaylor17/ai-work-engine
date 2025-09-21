@@ -5,14 +5,24 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 export const createWorkToken = async (wallet: any, amount: number) => {
   try {
-    if (!wallet) {
+    if (!wallet?.publicKey) {
       throw new Error('Wallet not connected');
     }
+
+    // Create keypair for payer (temporary solution)
+    const payer = Keypair.generate();
+    
+    // Airdrop SOL to payer for fees
+    const airdropSignature = await connection.requestAirdrop(
+      payer.publicKey,
+      2 * LAMPORTS_PER_SOL
+    );
+    await connection.confirmTransaction(airdropSignature);
 
     // Create new SPL token mint
     const mint = await createMint(
       connection,
-      wallet,
+      payer,
       wallet.publicKey,
       null,
       9
@@ -21,7 +31,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Get or create token account
     const tokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
-      wallet,
+      payer,
       mint,
       wallet.publicKey
     );
@@ -29,10 +39,10 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Mint tokens to user
     const signature = await mintTo(
       connection,
-      wallet,
+      payer,
       mint,
       tokenAccount.address,
-      wallet.publicKey,
+      payer.publicKey,
       amount * LAMPORTS_PER_SOL
     );
 
@@ -52,14 +62,24 @@ export const createWorkToken = async (wallet: any, amount: number) => {
 
 export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
   try {
-    if (!wallet) {
+    if (!wallet?.publicKey) {
       throw new Error('Wallet not connected');
     }
+
+    // Create keypair for payer (temporary solution)
+    const payer = Keypair.generate();
+    
+    // Airdrop SOL to payer for fees
+    const airdropSignature = await connection.requestAirdrop(
+      payer.publicKey,
+      2 * LAMPORTS_PER_SOL
+    );
+    await connection.confirmTransaction(airdropSignature);
 
     // Create a simple NFT using SPL token with supply of 1
     const mint = await createMint(
       connection,
-      wallet,
+      payer,
       wallet.publicKey,
       wallet.publicKey,
       0 // 0 decimals for NFT
@@ -68,7 +88,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Get or create token account
     const tokenAccount = await getOrCreateAssociatedTokenAccount(
       connection,
-      wallet,
+      payer,
       mint,
       wallet.publicKey
     );
@@ -76,10 +96,10 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Mint 1 NFT to user
     const signature = await mintTo(
       connection,
-      wallet,
+      payer,
       mint,
       tokenAccount.address,
-      wallet.publicKey,
+      payer.publicKey,
       1
     );
 
