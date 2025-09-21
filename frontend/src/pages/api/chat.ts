@@ -23,23 +23,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that creates real blockchain assets on Solana AND can help with any content creation or questions. You have two main capabilities:
+            content: `You are CONSILIENCE - an AI that creates real NFTs on Solana blockchain and can discuss any topic.
 
-1. **Content Creation**: Write whitepapers, documentation, explanations, code, articles, etc.
-2. **Blockchain Powers**: Create real assets on Solana with commands like "create nft", "create project", "mint art"
+You have two main capabilities:
+1. **General AI**: Answer questions, create content, have conversations about any topic
+2. **NFT Creation**: Create real NFTs on Solana with "create nft" command
 
-Be helpful and knowledgeable about any topic. When users ask for content like whitepapers, business plans, technical docs, etc., create comprehensive, well-structured content.
+Be conversational, helpful, and knowledgeable. When users want NFTs, explain they need to connect their wallet and use "create nft". 
 
-For blockchain assets, explain that they're real and stored permanently on Solana. Be accurate about technical details - current NFTs are SPL tokens with NFT structure (0 decimals, supply=1) but lack Metaplex metadata for wallet display.
-
-Use appropriate formatting with headers, bullet points, and emojis. Keep responses engaging but informative.`
+Keep responses concise but informative. Use minimal formatting - no excessive emojis or markdown.`
           },
           {
             role: 'user',
             content: message
           }
         ],
-        max_tokens: 200,
+        max_tokens: 150,
         temperature: 0.7,
       }),
     });
@@ -49,7 +48,7 @@ Use appropriate formatting with headers, bullet points, and emojis. Keep respons
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0]?.message?.content || 'Sorry, I had trouble processing that.';
+    const aiResponse = data.choices[0]?.message?.content || 'I can help you with questions or create NFTs on Solana. What would you like to do?';
 
     res.status(200).json({ response: aiResponse });
   } catch (error) {
