@@ -21,7 +21,7 @@ export default function Consilience() {
     setLoading(true);
 
     try {
-      if (userMessage.toLowerCase().includes('create nft') && connected && publicKey && sendTransaction) {
+      if (userMessage.toLowerCase().includes('create nft') && connected && publicKey) {
         const imageUrl = `https://picsum.photos/512/512?random=${Date.now()}`;
         const nft = await createRealNFT({ publicKey, sendTransaction }, 'CONSILIENCE NFT', userMessage, imageUrl);
         
