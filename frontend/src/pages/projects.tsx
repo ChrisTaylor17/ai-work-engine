@@ -1,195 +1,110 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import ProjectDashboard from '../components/ProjectDashboard';
-import AIChat from '../components/AIChat';
+import Layout from '../components/Layout';
 
 export default function Projects() {
   const router = useRouter();
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [createForm, setCreateForm] = useState({
-    description: '',
-    requiredSkills: '',
-    teamSize: 3
-  });
+  const [projects, setProjects] = useState([
+    { id: 1, name: 'DeFi_Yield_Optimizer', status: 'ACTIVE', tokens: 500, members: 3 },
+    { id: 2, name: 'NFT_Marketplace_v2', status: 'RECRUITING', tokens: 750, members: 2 },
+    { id: 3, name: 'Social_Trading_App', status: 'COMPLETED', tokens: 300, members: 4 }
+  ]);
+  const [newProject, setNewProject] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/');
-      return;
     }
-    fetchProjects();
   }, []);
 
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch('/api/projects', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      setProjects(data);
-    } catch (error) {
-      console.error('Failed to fetch projects:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleCreateProject = () => {
+    if (!newProject.trim()) return;
+    
+    const project = {
+      id: Date.now(),
+      name: newProject.replace(/\s+/g, '_'),
+      status: 'RECRUITING',
+      tokens: Math.floor(Math.random() * 500) + 200,
+      members: 1
+    };
+    
+    setProjects(prev => [project, ...prev]);
+    setNewProject('');
   };
-
-  const handleCreateProject = async () => {
-    try {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          description: createForm.description,
-          requiredSkills: createForm.requiredSkills.split(',').map(s => s.trim()).filter(Boolean),
-          teamSize: createForm.teamSize
-        })
-      });
-
-      if (response.ok) {
-        setShowCreateModal(false);
-        setCreateForm({ description: '', requiredSkills: '', teamSize: 3 });
-        fetchProjects();
-      } else {
-        const error = await response.json();
-        alert('Project creation failed: ' + error.error);
-      }
-    } catch (error) {
-      console.error('Project creation error:', error);
-      alert('Project creation failed');
-    }
-  };
-
-  const handleAIAction = (action: any) => {
-    if (action.type === 'create_project') {
-      setCreateForm(prev => ({
-        ...prev,
-        description: action.parameters.description || prev.description
-      }));
-      setShowCreateModal(true);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">AI Work Engine</h1>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => router.push('/profile')}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => {
-                localStorage.clear();
-                router.push('/');
-              }}
-              className="text-red-600 hover:text-red-800"
-            >
-              Logout
-            </button>
-          </div>
+    <Layout>
+      <div className="flex-1 flex flex-col bg-black">
+        <div className="bg-black border-b border-white p-4">
+          <h1 className="text-xl font-bold text-white font-mono retro-glow">&gt; MY_PROJECTS.TXT</h1>
         </div>
-      </nav>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <ProjectDashboard 
-              projects={projects}
-              onCreateProject={() => setShowCreateModal(true)}
-            />
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Create New Project */}
+          <div className="card mb-6">
+            <h2 className="text-white font-mono mb-4">[CREATE_NEW_PROJECT]</h2>
+            <div className="flex space-x-3">
+              <input
+                type="text"
+                value={newProject}
+                onChange={(e) => setNewProject(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleCreateProject()}
+                placeholder="Enter project name..."
+                className="flex-1 input-field rounded-none px-4 py-2"
+              />
+              <button 
+                onClick={handleCreateProject}
+                className="btn-primary rounded-none"
+              >
+                CREATE
+              </button>
+            </div>
           </div>
-          
-          <div className="lg:col-span-1">
-            <h2 className="text-lg font-semibold mb-4">AI Assistant</h2>
-            <AIChat onActionRequested={handleAIAction} />
+
+          {/* Projects List */}
+          <div className="space-y-4">
+            {projects.map(project => (
+              <div key={project.id} className="card">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="text-white font-mono font-bold">{project.name}</h3>
+                  <span className={`font-mono text-sm px-2 py-1 border ${
+                    project.status === 'ACTIVE' ? 'border-green-500 text-green-500' :
+                    project.status === 'RECRUITING' ? 'border-yellow-500 text-yellow-500' :
+                    'border-gray-500 text-gray-500'
+                  }`}>
+                    {project.status}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-sm font-mono">
+                  <div>
+                    <span className="text-gray-400">TOKENS:</span>
+                    <div className="text-white">{project.tokens} WORK</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">MEMBERS:</span>
+                    <div className="text-white">{project.members}/5</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">ID:</span>
+                    <div className="text-white">#{project.id}</div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex space-x-2">
+                  <button className="btn-secondary rounded-none text-xs px-3 py-1">
+                    VIEW_DETAILS
+                  </button>
+                  <button className="btn-secondary rounded-none text-xs px-3 py-1">
+                    MANAGE_TEAM
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      {/* Create Project Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">Create New Project</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Project Description</label>
-                <textarea
-                  value={createForm.description}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  rows={3}
-                  placeholder="Describe what you want to build..."
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1">Required Skills (comma-separated)</label>
-                <input
-                  type="text"
-                  value={createForm.requiredSkills}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, requiredSkills: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  placeholder="JavaScript, React, Solana..."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1">Team Size</label>
-                <select
-                  value={createForm.teamSize}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, teamSize: parseInt(e.target.value) }))}
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
-                  <option value={2}>2 members</option>
-                  <option value={3}>3 members</option>
-                  <option value={4}>4 members</option>
-                  <option value={5}>5 members</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="flex space-x-3 mt-6">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateProject}
-                disabled={!createForm.description.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                Create Project
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </Layout>
   );
 }
