@@ -98,6 +98,9 @@ What specifically would you like me to help you create or explain?`;
 
 export default function ProjectCreator() {
   const { wallet, connected, publicKey, sendTransaction } = useWallet();
+  
+  // Debug wallet state
+  console.log('Wallet state:', { wallet: !!wallet, connected, publicKey: !!publicKey, sendTransaction: !!sendTransaction });
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -133,7 +136,9 @@ export default function ProjectCreator() {
       // Only create blockchain assets for specific commands
       const isBlockchainCommand = lower.includes('create nft') || lower.includes('create project') || lower.includes('mint art');
       
-      if (isBlockchainCommand && (!connected || !publicKey)) {
+      console.log('Command check:', { isBlockchainCommand, connected, publicKey: !!publicKey });
+      
+      if (isBlockchainCommand && (!connected || !publicKey || !sendTransaction)) {
         response = `⚠️ **WALLET NOT CONNECTED**
 
 To create real blockchain assets:

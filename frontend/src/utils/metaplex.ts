@@ -5,8 +5,10 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 export const createMetaplexNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
   try {
+    console.log('Metaplex wallet check:', { wallet: !!wallet, publicKey: !!wallet?.publicKey, sendTransaction: !!wallet?.sendTransaction });
+    
     if (!wallet?.publicKey || !wallet?.sendTransaction) {
-      throw new Error('Wallet not connected');
+      throw new Error(`Wallet not connected - publicKey: ${!!wallet?.publicKey}, sendTransaction: ${!!wallet?.sendTransaction}`);
     }
 
     const { publicKey, sendTransaction } = wallet;
