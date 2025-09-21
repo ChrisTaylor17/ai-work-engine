@@ -56,6 +56,7 @@ app.post('/api/auth/wallet', (req, res) => {
     { expiresIn: '24h' }
   );
 
+  console.log('Auth successful for:', walletAddress);
   res.json({ token, user });
 });
 
