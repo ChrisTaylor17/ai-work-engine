@@ -102,8 +102,8 @@ Just ask me anything!`;
 
   return (
     <Layout>
-      <div className="bg-gray-800 border-b border-gray-700 p-4">
-        <h2 className="text-xl font-bold text-white">#{room}</h2>
+      <div className="bg-black border-b border-white p-4">
+        <h2 className="text-xl font-bold text-white font-mono retro-glow">&gt; #{room}_TERMINAL</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -149,7 +149,7 @@ Just ask me anything!`;
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="bg-gray-800 border-t border-gray-700 p-4">
+      <div className="bg-black border-t border-white p-4">
         <div className="flex space-x-3">
           <input
             type="text"

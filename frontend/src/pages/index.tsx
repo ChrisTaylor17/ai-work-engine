@@ -69,10 +69,10 @@ export default function Home() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className="min-h-screen bg-gray-900">
+          <div className="min-h-screen bg-black">
             <div className="container mx-auto px-4 py-16">
               <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 retro-glow">
                   AI Work Engine
                 </h1>
                 <p className="text-xl text-gray-300 mb-8">

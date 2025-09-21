@@ -37,18 +37,18 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-gray-900 flex">
       {/* Sidebar */}
-      <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+      <div className="w-64 bg-black border-r border-white flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-white">AI Work Engine</h1>
-          <p className="text-sm text-gray-400">Build the future together</p>
+        <div className="p-4 border-b border-white">
+          <h1 className="text-xl font-bold text-white retro-glow terminal-cursor">AI_WORK_ENGINE</h1>
+          <p className="text-sm text-gray-400 font-mono">&gt; TERMINAL_READY</p>
         </div>
 
         {/* Rooms */}
         <div className="flex-1 p-4">
           <div className="mb-6">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              Channels
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-2 font-mono">
+              [CHANNELS]
             </h3>
             {rooms.map((room) => (
               <div
@@ -66,8 +66,8 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              AI Tools
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-2 font-mono">
+              [AI_TOOLS]
             </h3>
             <div className="sidebar-item" onClick={() => router.push('/ai/project-creator')}>
               <span className="mr-2">✨</span>
@@ -84,8 +84,8 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           <div>
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              Quick Actions
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-2 font-mono">
+              [QUICK_ACTIONS]
             </h3>
             <div className="sidebar-item" onClick={() => router.push('/projects')}>
               <span className="mr-2">📋</span>
@@ -99,10 +99,10 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
+              <div className="w-8 h-8 bg-white text-black flex items-center justify-center text-sm font-bold font-mono">
                 {user.walletAddress?.slice(0, 2).toUpperCase()}
               </div>
               <div className="ml-2">

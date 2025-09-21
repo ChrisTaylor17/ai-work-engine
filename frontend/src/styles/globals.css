@@ -1,39 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  * {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+  
   body {
-    @apply bg-gray-900 text-white;
+    @apply bg-black text-white;
   }
 }
 
 @layer components {
   .chat-message {
-    @apply p-3 hover:bg-gray-800 border-l-4 border-transparent hover:border-blue-500 transition-all;
+    @apply p-4 hover:bg-gray-900 border-l-2 border-transparent hover:border-white transition-all;
   }
   
   .sidebar-item {
-    @apply flex items-center px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all cursor-pointer;
+    @apply flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 transition-all cursor-pointer font-mono;
   }
   
   .sidebar-item.active {
-    @apply bg-blue-600 text-white;
+    @apply bg-white text-black font-bold;
   }
   
   .input-field {
-    @apply bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500;
+    @apply bg-black border border-white text-white placeholder-gray-500 focus:border-white focus:ring-0 font-mono;
   }
   
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+    @apply bg-white text-black hover:bg-gray-200 font-mono font-bold py-2 px-6 transition-colors;
   }
   
   .btn-secondary {
-    @apply bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+    @apply bg-black border border-white text-white hover:bg-white hover:text-black font-mono font-bold py-2 px-6 transition-colors;
   }
   
   .card {
-    @apply bg-gray-800 border border-gray-700 rounded-lg p-6;
+    @apply bg-black border border-white p-6;
+  }
+  
+  .retro-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+  
+  .terminal-cursor::after {
+    content: '_';
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
   }
 }
