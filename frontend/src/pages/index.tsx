@@ -25,7 +25,7 @@ export default function Home() {
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
-      router.push('/chat/general');
+      router.push('/ai/project-creator');
     }
   }, []);
 
@@ -54,7 +54,7 @@ export default function Home() {
         if (!data.user.profile) {
           router.push('/profile');
         } else {
-          router.push('/chat/general');
+          router.push('/ai/project-creator');
         }
       } else {
         alert('Authentication failed: ' + data.error);
