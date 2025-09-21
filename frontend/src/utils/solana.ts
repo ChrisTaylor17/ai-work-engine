@@ -18,6 +18,7 @@ export const createWorkToken = async (wallet: any, amount: number) => {
     // Create transaction
     const transaction = new Transaction();
     transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.feePayer = publicKey;
     transaction.add(
       SystemProgram.createAccount({
         fromPubkey: publicKey,
@@ -96,6 +97,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     // Create transaction
     const transaction = new Transaction();
     transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.feePayer = publicKey;
     transaction.add(
       SystemProgram.createAccount({
         fromPubkey: publicKey,
