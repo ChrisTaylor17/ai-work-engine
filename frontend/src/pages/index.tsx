@@ -31,7 +31,7 @@ export default function Home() {
 
   const handleWalletConnect = async (walletAddress: string, signature: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://powerful-acceptance-production.up.railway.app';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-work-engine-production.up.railway.app';
       const response = await fetch(`${apiUrl}/api/auth/wallet`, {
         method: 'POST',
         headers: {
