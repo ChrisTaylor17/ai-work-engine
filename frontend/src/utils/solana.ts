@@ -1,6 +1,6 @@
 import { Connection, PublicKey, Keypair, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Metaplex, keypairIdentity, bundlrStorage } from '@metaplex-foundation/js';
+import { Metaplex, keypairIdentity } from '@metaplex-foundation/js';
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
@@ -58,8 +58,7 @@ export const createNFT = async (wallet: any, name: string, description: string, 
     }
 
     const metaplex = Metaplex.make(connection)
-      .use(keypairIdentity(wallet))
-      .use(bundlrStorage());
+      .use(keypairIdentity(wallet));
 
     const { nft } = await metaplex.nfts().create({
       uri: '',
