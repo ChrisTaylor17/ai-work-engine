@@ -7,7 +7,7 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 
 export default function ProjectCreator() {
-  const { wallet, connected, publicKey } = useWallet();
+  const { wallet, connected, publicKey, sendTransaction } = useWallet();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -58,10 +58,10 @@ Connect wallet for real blockchain transactions!`;
           // Create NFT if requested
           if (lower.includes('nft') || lower.includes('art')) {
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
-            nftData = await createNFT(wallet?.adapter, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
-            tokenData = await createWorkToken(wallet?.adapter, tokensEarned);
+            nftData = await createNFT({ publicKey, sendTransaction }, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
+            tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned);
           } else {
-            tokenData = await createWorkToken(wallet?.adapter, tokensEarned);
+            tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned);
           }
         } catch (error: any) {
           const errorMsg = error.message || error.toString();

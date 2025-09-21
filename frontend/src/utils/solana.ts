@@ -1,49 +1,73 @@
-import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram, Keypair } from '@solana/web3.js';
-import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram } from '@solana/web3.js';
+import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID, createInitializeMintInstruction, MINT_SIZE, getMinimumBalanceForRentExemptMint, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, createMintToInstruction } from '@solana/spl-token';
 
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
-export const createWorkToken = async (walletAdapter: any, amount: number) => {
+export const createWorkToken = async (wallet: any, amount: number) => {
   try {
-    if (!walletAdapter?.publicKey) {
+    if (!wallet?.publicKey || !wallet?.sendTransaction) {
       throw new Error('Wallet not connected');
     }
 
-    const publicKey = walletAdapter.publicKey;
+    const { publicKey, sendTransaction } = wallet;
 
-    // Create new SPL token mint - user pays fees
-    const mint = await createMint(
-      connection,
-      walletAdapter,
-      publicKey,
-      null,
-      9
+    // Create mint account
+    const mintKeypair = new (await import('@solana/web3.js')).Keypair();
+    const lamports = await getMinimumBalanceForRentExemptMint(connection);
+
+    // Create transaction
+    const transaction = new Transaction().add(
+      SystemProgram.createAccount({
+        fromPubkey: publicKey,
+        newAccountPubkey: mintKeypair.publicKey,
+        space: MINT_SIZE,
+        lamports,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      createInitializeMintInstruction(
+        mintKeypair.publicKey,
+        9,
+        publicKey,
+        null
+      )
     );
 
-    // Get or create token account - user pays fees
-    const tokenAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      walletAdapter,
-      mint,
+    // Get associated token account
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+      mintKeypair.publicKey,
       publicKey
     );
 
-    // Mint tokens to user - user pays fees
-    const signature = await mintTo(
-      connection,
-      walletAdapter,
-      mint,
-      tokenAccount.address,
-      publicKey,
-      amount * LAMPORTS_PER_SOL
+    // Add create ATA instruction
+    transaction.add(
+      createAssociatedTokenAccountInstruction(
+        publicKey,
+        associatedTokenAccount,
+        publicKey,
+        mintKeypair.publicKey
+      )
     );
 
+    // Add mint instruction
+    transaction.add(
+      createMintToInstruction(
+        mintKeypair.publicKey,
+        associatedTokenAccount,
+        publicKey,
+        amount * LAMPORTS_PER_SOL
+      )
+    );
+
+    // Send transaction
+    transaction.partialSign(mintKeypair);
+    const signature = await sendTransaction(transaction, connection);
+    
     // Wait for confirmation
     await connection.confirmTransaction(signature);
 
     return {
-      mintAddress: mint.toBase58(),
-      tokenAccount: tokenAccount.address.toBase58(),
+      mintAddress: mintKeypair.publicKey.toBase58(),
+      tokenAccount: associatedTokenAccount.toBase58(),
       amount: amount,
       signature: signature,
       blockTime: Date.now(),
@@ -55,50 +79,74 @@ export const createWorkToken = async (walletAdapter: any, amount: number) => {
   }
 };
 
-export const createNFT = async (walletAdapter: any, name: string, description: string, imageUrl: string) => {
+export const createNFT = async (wallet: any, name: string, description: string, imageUrl: string) => {
   try {
-    if (!walletAdapter?.publicKey) {
+    if (!wallet?.publicKey || !wallet?.sendTransaction) {
       throw new Error('Wallet not connected');
     }
 
-    const publicKey = walletAdapter.publicKey;
+    const { publicKey, sendTransaction } = wallet;
 
-    // Create NFT using SPL token with supply of 1 - user pays fees
-    const mint = await createMint(
-      connection,
-      walletAdapter,
-      publicKey,
-      publicKey,
-      0 // 0 decimals for NFT
+    // Create mint account for NFT
+    const mintKeypair = new (await import('@solana/web3.js')).Keypair();
+    const lamports = await getMinimumBalanceForRentExemptMint(connection);
+
+    // Create transaction
+    const transaction = new Transaction().add(
+      SystemProgram.createAccount({
+        fromPubkey: publicKey,
+        newAccountPubkey: mintKeypair.publicKey,
+        space: MINT_SIZE,
+        lamports,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      createInitializeMintInstruction(
+        mintKeypair.publicKey,
+        0, // 0 decimals for NFT
+        publicKey,
+        publicKey
+      )
     );
 
-    // Get or create token account - user pays fees
-    const tokenAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      walletAdapter,
-      mint,
+    // Get associated token account
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+      mintKeypair.publicKey,
       publicKey
     );
 
-    // Mint 1 NFT to user - user pays fees
-    const signature = await mintTo(
-      connection,
-      walletAdapter,
-      mint,
-      tokenAccount.address,
-      publicKey,
-      1
+    // Add create ATA instruction
+    transaction.add(
+      createAssociatedTokenAccountInstruction(
+        publicKey,
+        associatedTokenAccount,
+        publicKey,
+        mintKeypair.publicKey
+      )
     );
 
+    // Add mint instruction (mint 1 NFT)
+    transaction.add(
+      createMintToInstruction(
+        mintKeypair.publicKey,
+        associatedTokenAccount,
+        publicKey,
+        1
+      )
+    );
+
+    // Send transaction
+    transaction.partialSign(mintKeypair);
+    const signature = await sendTransaction(transaction, connection);
+    
     // Wait for confirmation
     await connection.confirmTransaction(signature);
 
     return {
-      mintAddress: mint.toBase58(),
+      mintAddress: mintKeypair.publicKey.toBase58(),
       name: name,
       description: description,
       signature: signature,
-      metadataUri: `https://example.com/metadata/${mint.toBase58()}`,
+      metadataUri: `https://example.com/metadata/${mintKeypair.publicKey.toBase58()}`,
       blockTime: Date.now(),
       slot: await connection.getSlot(),
       image: imageUrl
