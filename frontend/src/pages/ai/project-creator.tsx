@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
-import { createWorkToken } from '../../utils/solana';
+// import { createWorkToken } from '../../utils/solana';
 import { createMetaplexNFT } from '../../utils/metaplex';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
@@ -158,7 +158,7 @@ Connect wallet for real blockchain transactions!`;
             const imageUrl = `https://picsum.photos/400/400?random=${Math.floor(Math.random() * 1000)}`;
             nftData = await createMetaplexNFT({ publicKey, sendTransaction }, `AI Generated NFT`, `Created from: ${input}`, imageUrl);
           } else if (lower.includes('create project') || lower.includes('start project')) {
-            tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned + 50);
+            // tokenData = await createWorkToken({ publicKey, sendTransaction }, tokensEarned + 50);
           }
         } catch (error: any) {
           const errorMsg = error.message || error.toString();
