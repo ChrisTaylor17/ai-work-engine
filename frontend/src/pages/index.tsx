@@ -76,17 +76,25 @@ export default function Home() {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
+    const userInput = input;
+    setInput('');
     setLoading(true);
+    
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userInput }),
       });
       
-      const data = await response.json();
-      setAiResponse(data.response);
+      if (response.ok) {
+        const data = await response.json();
+        setAiResponse(data.response || 'I can help you with crypto analysis and productivity tasks.');
+      } else {
+        throw new Error('API failed');
+      }
     } catch (error) {
+      console.error('AI chat error:', error);
       setAiResponse('I can help you with productivity, crypto analysis, and blockchain tasks. What would you like to work on?');
     }
     setLoading(false);
@@ -172,8 +180,9 @@ export default function Home() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask about crypto, set goals, analyze blockchain data..."
-                    className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-black"
+                    className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-3 text-black bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     disabled={loading}
+                    autoComplete="off"
                   />
                   <button
                     type="submit"

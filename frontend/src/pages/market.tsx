@@ -25,51 +25,53 @@ export default function Market() {
 
   const loadMarketData = async () => {
     try {
-      // Mock data (in production, fetch from CoinGecko or similar)
-      const mockData: TokenData[] = [
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,usd-coin,raydium,orca,mango-markets&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true');
+      const data = await response.json();
+      
+      const realData: TokenData[] = [
         {
           symbol: 'SOL',
           name: 'Solana',
-          price: 23.45,
-          change24h: 5.67,
-          volume: 1234567890,
-          marketCap: 9876543210
+          price: data.solana?.usd || 0,
+          change24h: data.solana?.usd_24h_change || 0,
+          volume: data.solana?.usd_24h_vol || 0,
+          marketCap: data.solana?.usd_market_cap || 0
         },
         {
           symbol: 'USDC',
           name: 'USD Coin',
-          price: 1.00,
-          change24h: 0.01,
-          volume: 2345678901,
-          marketCap: 28765432109
+          price: data['usd-coin']?.usd || 1,
+          change24h: data['usd-coin']?.usd_24h_change || 0,
+          volume: data['usd-coin']?.usd_24h_vol || 0,
+          marketCap: data['usd-coin']?.usd_market_cap || 0
         },
         {
           symbol: 'RAY',
           name: 'Raydium',
-          price: 0.234,
-          change24h: -2.34,
-          volume: 12345678,
-          marketCap: 123456789
+          price: data.raydium?.usd || 0,
+          change24h: data.raydium?.usd_24h_change || 0,
+          volume: data.raydium?.usd_24h_vol || 0,
+          marketCap: data.raydium?.usd_market_cap || 0
         },
         {
           symbol: 'ORCA',
           name: 'Orca',
-          price: 0.567,
-          change24h: 8.91,
-          volume: 23456789,
-          marketCap: 234567890
+          price: data.orca?.usd || 0,
+          change24h: data.orca?.usd_24h_change || 0,
+          volume: data.orca?.usd_24h_vol || 0,
+          marketCap: data.orca?.usd_market_cap || 0
         },
         {
           symbol: 'MNGO',
           name: 'Mango',
-          price: 0.012,
-          change24h: -5.67,
-          volume: 3456789,
-          marketCap: 34567890
+          price: data['mango-markets']?.usd || 0,
+          change24h: data['mango-markets']?.usd_24h_change || 0,
+          volume: data['mango-markets']?.usd_24h_vol || 0,
+          marketCap: data['mango-markets']?.usd_market_cap || 0
         }
       ];
       
-      setTokens(mockData);
+      setTokens(realData);
     } catch (error) {
       console.error('Failed to load market data:', error);
     }
@@ -135,24 +137,28 @@ export default function Market() {
         {/* Market Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-2xl font-bold text-green-600">$23.45</div>
+            <div className={`text-2xl font-bold ${tokens[0]?.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              ${tokens[0]?.price?.toFixed(2) || '0.00'}
+            </div>
             <div className="text-sm text-gray-600">SOL Price</div>
-            <div className="text-xs text-green-600 mt-1">+5.67% (24h)</div>
+            <div className={`text-xs mt-1 ${tokens[0]?.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {tokens[0]?.change24h >= 0 ? '+' : ''}{tokens[0]?.change24h?.toFixed(2) || '0.00'}% (24h)
+            </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-2xl font-bold">$1.2B</div>
-            <div className="text-sm text-gray-600">24h Volume</div>
-            <div className="text-xs text-gray-600 mt-1">Across all tokens</div>
+            <div className="text-2xl font-bold">${formatNumber(tokens[0]?.volume || 0)}</div>
+            <div className="text-sm text-gray-600">SOL 24h Volume</div>
+            <div className="text-xs text-gray-600 mt-1">Real-time data</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-2xl font-bold">$9.8B</div>
+            <div className="text-2xl font-bold">${formatNumber(tokens[0]?.marketCap || 0)}</div>
             <div className="text-sm text-gray-600">SOL Market Cap</div>
-            <div className="text-xs text-gray-600 mt-1">Rank #9</div>
+            <div className="text-xs text-gray-600 mt-1">Live from CoinGecko</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="text-2xl font-bold">156</div>
-            <div className="text-sm text-gray-600">Active Tokens</div>
-            <div className="text-xs text-gray-600 mt-1">On Solana</div>
+            <div className="text-2xl font-bold">{tokens.length}</div>
+            <div className="text-sm text-gray-600">Tracked Tokens</div>
+            <div className="text-xs text-gray-600 mt-1">Real prices</div>
           </div>
         </div>
 
