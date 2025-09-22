@@ -7,219 +7,308 @@ import { createRealNFT } from '../utils/nft';
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Array<{role: string, content: string}>>([]);
+  const [messages, setMessages] = useState<Array<{role: string, content: string, user?: string, timestamp?: number, nft?: any}>>([]);
   const [loading, setLoading] = useState(false);
   const [totalTokens, setTotalTokens] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [roomUsers, setRoomUsers] = useState<string[]>([]);
   const { connected, publicKey, sendTransaction } = useWallet();
 
   useEffect(() => {
     setMounted(true);
+    
+    // Load global chat messages
+    const loadMessages = async () => {
+      try {
+        const response = await fetch('/api/rooms/global');
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.messages || []);
+        }
+      } catch (error) {
+        console.error('Failed to load messages:', error);
+      }
+    };
+
+    loadMessages();
+    
+    // Poll for new messages every 3 seconds
+    const interval = setInterval(loadMessages, 3000);
+    return () => clearInterval(interval);
   }, []);
+
+  const saveMessage = async (message: any) => {
+    try {
+      await fetch('/api/rooms/global', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+    } catch (error) {
+      console.error('Failed to save message:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
+    const userAddress = publicKey?.toBase58().slice(0, 8) || 'Anonymous';
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    
+    const newMessage = {
+      role: 'user',
+      content: userMessage,
+      user: userAddress,
+      timestamp: Date.now()
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+    saveMessage(newMessage);
     setLoading(true);
 
     try {
-      // Direct OpenAI API call
       let aiResponse = '';
-      try {
-        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [{
-              role: 'system',
-              content: 'You are CONSILIENCE, a helpful AI assistant that helps with productivity, crypto projects, and creating NFTs. Be encouraging and helpful.'
-            }, {
-              role: 'user',
-              content: userMessage
-            }],
-            max_tokens: 150,
-            temperature: 0.7,
-          }),
-        });
-        
-        if (openaiResponse.ok) {
-          const data = await openaiResponse.json();
-          aiResponse = data.choices[0]?.message?.content || 'I can help you with crypto projects and productivity!';
-        } else {
-          throw new Error('OpenAI API failed');
-        }
-      } catch (openaiError) {
-        // Fallback responses
-        const lower = userMessage.toLowerCase();
-        if (lower.includes('create nft') || lower.includes('nft')) {
-          aiResponse = `I can create real NFTs on Solana! Connect your wallet and I'll mint a unique NFT for you. What should your NFT represent?`;
-        } else if (lower.includes('meet') || lower.includes('connect') || lower.includes('people')) {
-          aiResponse = `I'd love to help you connect with like-minded people! Check out the Connect page to find others with similar interests. What kind of people are you hoping to meet?`;
-        } else if (lower.includes('goal') || lower.includes('plan')) {
-          aiResponse = `Great! Setting goals is the first step to success. I'll help you break this down into actionable steps. What specific outcome do you want to achieve?`;
-        } else {
-          aiResponse = `Hello! I'm CONSILIENCE, your AI assistant. I can help with productivity, create real NFTs on Solana, and connect you with other builders. What would you like to do?`;
-        }
-      }
-
+      let nftData = null;
+      
       // Handle NFT creation
-      const lower = userMessage.toLowerCase();
-      if (lower.includes('create nft') && connected && publicKey) {
+      if (userMessage.toLowerCase().includes('create nft') && connected && publicKey) {
         try {
-          const imageUrl = `https://picsum.photos/512/512?random=${Date.now()}`;
+          const imageUrl = `https://picsum.photos/800/800?random=${Date.now()}`;
           const nft = await createRealNFT({ publicKey, sendTransaction }, 'CONSILIENCE NFT', userMessage, imageUrl);
-          aiResponse += `\n\n✨ NFT Created Successfully!\n🇮🇲 Image: ${imageUrl}\n🔗 Mint: ${nft.mintAddress}\n🔍 View on Solana Explorer: https://explorer.solana.com/address/${nft.mintAddress}?cluster=devnet`;
+          nftData = { ...nft, image: imageUrl };
+          aiResponse = `✨ I've created your NFT! It represents "${userMessage}" and is now permanently stored on Solana blockchain.`;
         } catch (error) {
-          aiResponse += `\n\n❌ NFT creation failed. Make sure your wallet is connected and try again.`;
+          aiResponse = `I had trouble creating your NFT. Make sure your wallet is connected and has some SOL for transaction fees.`;
         }
-      }
-
-      // Reward tokens if wallet connected
-      let tokens = 0;
-      if (connected && publicKey) {
-        if (lower.includes('create nft')) tokens = 25;
-        else if (lower.includes('goal') || lower.includes('plan')) tokens = 5;
-        else if (lower.includes('complete') || lower.includes('done')) tokens = 10;
-        else if (lower.includes('learn') || lower.includes('study')) tokens = 3;
-        else tokens = 1;
-
+      } else {
+        // AI conversation
         try {
-          const reward = await rewardUser({ publicKey, sendTransaction }, tokens, 'Chat engagement');
-          if (reward) {
-            setTotalTokens(prev => prev + tokens);
-            aiResponse += `\n\n🎉 +${tokens} CONSILIENCE tokens sent to your wallet!`;
+          const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-3.5-turbo',
+              messages: [
+                {
+                  role: 'system',
+                  content: `You are CONSILIENCE, a sophisticated AI assistant in a global chat room. You help with productivity, create NFTs, and facilitate meaningful conversations. Be conversational, intelligent, and helpful. Keep responses concise but engaging.`
+                },
+                ...messages.slice(-5).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content })),
+                { role: 'user', content: userMessage }
+              ],
+              max_tokens: 200,
+              temperature: 0.8,
+            }),
+          });
+          
+          if (openaiResponse.ok) {
+            const data = await openaiResponse.json();
+            aiResponse = data.choices[0]?.message?.content || 'I can help you with productivity and creating NFTs!';
+          } else {
+            throw new Error('OpenAI API failed');
           }
         } catch (error) {
-          console.error('Token reward failed:', error);
-          setTotalTokens(prev => prev + tokens);
-          aiResponse += `\n\n🎉 +${tokens} CONSILIENCE tokens earned!`;
+          // Smart fallbacks
+          const lower = userMessage.toLowerCase();
+          if (lower.includes('hello') || lower.includes('hi')) {
+            aiResponse = `Hello ${userAddress}! Welcome to CONSILIENCE. I can help with productivity, create NFTs, and connect you with other builders here.`;
+          } else if (lower.includes('nft')) {
+            aiResponse = `I create real NFTs on Solana! Just say "create nft" and describe what you want it to represent.`;
+          } else {
+            aiResponse = `Interesting perspective, ${userAddress}. I'm here to help with productivity and blockchain projects. What are you working on?`;
+          }
         }
       }
 
-      setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
+      // Reward tokens
+      if (connected && publicKey) {
+        const lower = userMessage.toLowerCase();
+        let tokens = lower.includes('create nft') ? 50 : lower.length > 20 ? 3 : 1;
+        
+        try {
+          await rewardUser({ publicKey, sendTransaction }, tokens, 'Chat participation');
+          setTotalTokens(prev => prev + tokens);
+        } catch (error) {
+          console.error('Token reward failed:', error);
+        }
+      }
+
+      const aiMessage = {
+        role: 'ai',
+        content: aiResponse,
+        user: 'CONSILIENCE',
+        timestamp: Date.now(),
+        nft: nftData
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      saveMessage(aiMessage);
     } catch (error) {
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: 'I can help you be productive and connect with others! What are you working on today?' 
-      }]);
+      console.error('Error:', error);
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="flex justify-between items-center p-6 bg-black/20 backdrop-blur">
-        <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold">C</span>
-          </div>
-          <div>
-            <h1 className="text-white text-xl font-light tracking-wider">CONSILIENCE</h1>
-            <p className="text-white/60 text-xs">Productivity & Connection AI</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {mounted && connected && (
-            <div className="text-right">
-              <div className="text-cyan-400 font-bold">{totalTokens} CONSILIENCE</div>
-              <div className="text-white/60 text-xs">Real Solana tokens</div>
+      <div className="border-b border-gray-800 bg-gradient-to-r from-gray-900 to-black">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-white to-gray-400 rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-lg">C</span>
             </div>
-          )}
-          {mounted && (
-            <WalletMultiButton className="!bg-white/10 hover:!bg-white/20 !border-white/20 !text-white !rounded-full !text-sm" />
-          )}
+            <div>
+              <h1 className="text-xl font-light tracking-wider">CONSILIENCE</h1>
+              <p className="text-gray-400 text-xs">Global AI-Powered Workspace</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-6">
+            {mounted && connected && (
+              <div className="text-right">
+                <div className="text-white font-medium">{totalTokens} CONSILIENCE</div>
+                <div className="text-gray-400 text-xs">Blockchain tokens</div>
+              </div>
+            )}
+            {mounted && (
+              <WalletMultiButton className="!bg-white !text-black hover:!bg-gray-200 !rounded-lg !font-medium !text-sm !px-4 !py-2" />
+            )}
+          </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-center space-x-4 p-4 bg-black/10">
-        <Link href="/" className="text-cyan-400 px-4 py-2 rounded-full bg-cyan-400/20">Chat</Link>
-        <Link href="/goals" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Goals</Link>
-        <Link href="/connect" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Connect</Link>
+      <div className="border-b border-gray-800 bg-gray-900">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex space-x-8">
+          <Link href="/" className="text-white border-b-2 border-white pb-2 text-sm font-medium">Global Chat</Link>
+          <Link href="/goals" className="text-gray-400 hover:text-white pb-2 text-sm">Goals</Link>
+          <Link href="/connect" className="text-gray-400 hover:text-white pb-2 text-sm">Connect</Link>
+        </div>
       </div>
 
-      {/* Main Chat */}
-      <div className="flex flex-col h-[calc(100vh-160px)]">
+      {/* Chat Area */}
+      <div className="max-w-6xl mx-auto flex h-[calc(100vh-140px)]">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-4xl mx-auto space-y-4">
+        <div className="flex-1 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {messages.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-white/60 mb-4">
-                  <div className="text-2xl mb-2">🚀</div>
-                  <div>Welcome to CONSILIENCE</div>
-                  <div className="text-sm">Your AI productivity companion that rewards achievement</div>
+              <div className="text-center py-20">
+                <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-400 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+                  <span className="text-black font-bold text-2xl">C</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 text-sm">
-                  <div className="bg-white/10 rounded-lg p-4">
-                    <div className="text-cyan-400 mb-2">🎯 Set Goals</div>
-                    <div className="text-white/80">Share your goals and get rewarded with CONSILIENCE tokens</div>
+                <h2 className="text-2xl font-light mb-4">Welcome to CONSILIENCE</h2>
+                <p className="text-gray-400 mb-8 max-w-md mx-auto">
+                  A sophisticated AI workspace where you can chat with others, set goals, create NFTs, and build meaningful connections.
+                </p>
+                <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto text-sm">
+                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+                    <div className="w-8 h-8 bg-white rounded-lg mb-4 flex items-center justify-center">
+                      <span className="text-black text-lg">💬</span>
+                    </div>
+                    <h3 className="font-medium mb-2">Global Chat</h3>
+                    <p className="text-gray-400">Connect with builders worldwide</p>
                   </div>
-                  <div className="bg-white/10 rounded-lg p-4">
-                    <div className="text-purple-400 mb-2">🤝 Connect</div>
-                    <div className="text-white/80">Find others with similar interests and collaborate</div>
+                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+                    <div className="w-8 h-8 bg-white rounded-lg mb-4 flex items-center justify-center">
+                      <span className="text-black text-lg">🎨</span>
+                    </div>
+                    <h3 className="font-medium mb-2">Create NFTs</h3>
+                    <p className="text-gray-400">Mint real blockchain assets</p>
                   </div>
-                  <div className="bg-white/10 rounded-lg p-4">
-                    <div className="text-pink-400 mb-2">📈 Achieve</div>
-                    <div className="text-white/80">Complete tasks and earn real Solana tokens</div>
+                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700">
+                    <div className="w-8 h-8 bg-white rounded-lg mb-4 flex items-center justify-center">
+                      <span className="text-black text-lg">🎯</span>
+                    </div>
+                    <h3 className="font-medium mb-2">Achieve Goals</h3>
+                    <p className="text-gray-400">Earn tokens for productivity</p>
                   </div>
                 </div>
               </div>
             )}
             
             {messages.map((message, index) => (
-              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-2xl px-6 py-4 rounded-2xl ${
-                  message.role === 'user' 
-                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' 
-                    : 'bg-white/10 backdrop-blur text-white border border-white/20'
+              <div key={index} className="flex items-start space-x-4">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  message.role === 'ai' 
+                    ? 'bg-gradient-to-br from-white to-gray-400' 
+                    : 'bg-gradient-to-br from-gray-600 to-gray-800'
                 }`}>
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  <span className={`font-bold text-sm ${
+                    message.role === 'ai' ? 'text-black' : 'text-white'
+                  }`}>
+                    {message.role === 'ai' ? 'C' : message.user?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-medium text-sm">{message.user || 'Unknown'}</span>
+                    <span className="text-gray-500 text-xs">
+                      {message.timestamp ? new Date(message.timestamp).toLocaleTimeString() : ''}
+                    </span>
+                  </div>
+                  <div className="text-gray-100 leading-relaxed">{message.content}</div>
+                  {message.nft && (
+                    <div className="mt-4 bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700 max-w-md">
+                      <img src={message.nft.image} alt="NFT" className="w-full h-48 object-cover rounded-lg mb-3" />
+                      <div className="text-sm">
+                        <div className="font-medium mb-1">{message.nft.name}</div>
+                        <div className="text-gray-400 text-xs mb-2">Mint: {message.nft.mintAddress?.slice(0, 20)}...</div>
+                        <a 
+                          href={`https://explorer.solana.com/address/${message.nft.mintAddress}?cluster=devnet`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-white hover:text-gray-300 text-xs underline"
+                        >
+                          View on Solana Explorer →
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
             
             {loading && (
-              <div className="flex justify-start">
-                <div className="bg-white/10 backdrop-blur border border-white/20 px-6 py-4 rounded-2xl">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-white to-gray-400 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-sm">C</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-medium text-sm">CONSILIENCE</span>
+                  </div>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   </div>
                 </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Input */}
-        <div className="p-6 bg-black/20 backdrop-blur">
-          <div className="max-w-4xl mx-auto">
+          {/* Input */}
+          <div className="border-t border-gray-800 p-6 bg-gradient-to-r from-gray-900 to-black">
             <form onSubmit={handleSubmit} className="flex space-x-4">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Share your goals, ask for help, or tell me what you accomplished..."
-                className="flex-1 bg-white/10 backdrop-blur border border-white/20 rounded-full px-6 py-4 text-white placeholder-white/50 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+                placeholder="Message CONSILIENCE or chat with others..."
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
                 disabled={loading}
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-4 rounded-full text-white font-medium transition-all duration-200"
+                className="bg-white text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-medium transition-all duration-200"
               >
                 Send
               </button>
