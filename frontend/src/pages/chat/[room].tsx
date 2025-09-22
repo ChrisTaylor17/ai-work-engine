@@ -82,8 +82,10 @@ export default function ChatRoom() {
       // Update user's data
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       currentUser.tokens = (currentUser.tokens || 0) + tokensEarned;
-      currentUser.lastMint = tokenData.mintAddress;
-      currentUser.lastSignature = tokenData.signature;
+      if (tokenData) {
+        currentUser.lastMint = tokenData.mintAddress;
+        currentUser.lastSignature = tokenData.signature;
+      }
       if (nftData) {
         currentUser.nfts = currentUser.nfts || [];
         currentUser.nfts.push(nftData);
