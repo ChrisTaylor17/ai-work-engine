@@ -1,13 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('Chat API called:', req.method, req.body);
+  
   if (req.method !== 'POST') {
+    console.log('Wrong method:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { message } = req.body;
+  console.log('Message received:', message);
 
   if (!message) {
+    console.log('No message provided');
     return res.status(400).json({ error: 'Message is required' });
   }
 
@@ -55,8 +60,10 @@ Be encouraging about collaboration and building together. When multiple users ar
     }
 
     const data = await response.json();
+    console.log('OpenAI response:', data);
     const aiResponse = data.choices[0]?.message?.content || 'I can help you with questions or create NFTs on Solana. What would you like to do?';
-
+    
+    console.log('Sending response:', aiResponse);
     res.status(200).json({ response: aiResponse });
   } catch (error) {
     console.error('OpenAI API error:', error);
