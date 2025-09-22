@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { rewardUser } from '../utils/token';
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Array<{role: string, content: string, reward?: any}>>([]);
+  const [messages, setMessages] = useState<Array<{role: string, content: string}>>([]);
   const [loading, setLoading] = useState(false);
   const [totalTokens, setTotalTokens] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const { connected, publicKey, sendTransaction } = useWallet();
+  const { connected, publicKey } = useWallet();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
@@ -20,90 +18,40 @@ export default function Home() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
 
-    try {
-      // Call OpenAI API directly
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: `You are CONSILIENCE, an AI productivity assistant that helps users achieve goals and connect with others. You reward users with CONSILIENCE tokens for productive actions.
+    // Simple AI responses without external API calls
+    setTimeout(() => {
+      const lower = userMessage.toLowerCase();
+      let response = '';
+      let tokens = 0;
 
-Key behaviors:
-- Help users set and achieve goals
-- Encourage productivity and learning
-- Connect people with similar interests
-- Reward meaningful contributions
-- Be encouraging and motivational
-
-When users accomplish something, mention they've earned CONSILIENCE tokens.`
-            },
-            ...messages.slice(-5), // Last 5 messages for context
-            { role: 'user', content: userMessage }
-          ],
-          max_tokens: 200,
-          temperature: 0.7,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const aiResponse = data.choices[0]?.message?.content || 'I can help you be more productive!';
-        
-        // Reward logic
-        let reward = null;
-        const lower = userMessage.toLowerCase();
-        
-        if (connected && publicKey) {
-          let rewardAmount = 0;
-          let rewardReason = '';
-          
-          if (lower.includes('goal') || lower.includes('plan') || lower.includes('achieve')) {
-            rewardAmount = 5;
-            rewardReason = 'Goal setting';
-          } else if (lower.includes('complete') || lower.includes('done') || lower.includes('finished')) {
-            rewardAmount = 10;
-            rewardReason = 'Task completion';
-          } else if (lower.includes('learn') || lower.includes('study') || lower.includes('research')) {
-            rewardAmount = 3;
-            rewardReason = 'Learning activity';
-          } else if (userMessage.length > 50) {
-            rewardAmount = 2;
-            rewardReason = 'Detailed message';
-          } else {
-            rewardAmount = 1;
-            rewardReason = 'Engagement';
-          }
-          
-          reward = await rewardUser({ publicKey, sendTransaction }, rewardAmount, rewardReason);
-          if (reward) {
-            setTotalTokens(prev => prev + rewardAmount);
-            setStreak(prev => prev + 1);
-          }
-        }
-
-        setMessages(prev => [...prev, { 
-          role: 'ai', 
-          content: reward ? `${aiResponse}\n\n🎉 +${reward.amount} CONSILIENCE tokens earned for ${reward.reason}!` : aiResponse,
-          reward 
-        }]);
+      if (lower.includes('goal') || lower.includes('plan')) {
+        response = `Great! Setting goals is the first step to success. I'll help you break this down into actionable steps. What specific outcome do you want to achieve?`;
+        tokens = 5;
+      } else if (lower.includes('complete') || lower.includes('done') || lower.includes('finished')) {
+        response = `Congratulations on completing that! 🎉 Finishing tasks is how we build momentum. What's your next priority?`;
+        tokens = 10;
+      } else if (lower.includes('learn') || lower.includes('study')) {
+        response = `Learning is investing in yourself! 📚 What topic are you diving into? I can help you create a structured learning plan.`;
+        tokens = 3;
+      } else if (lower.includes('help') || lower.includes('stuck')) {
+        response = `I'm here to help you succeed! 💪 Tell me more about what you're working on and where you're getting stuck. We'll figure it out together.`;
+        tokens = 2;
+      } else if (lower.includes('hello') || lower.includes('hi')) {
+        response = `Hello! I'm CONSILIENCE, your productivity companion. I help you set goals, track progress, and connect with other builders. What are you working on today?`;
+        tokens = 1;
       } else {
-        throw new Error('API failed');
+        response = `I love your energy! Let's channel that into something productive. What project or goal can I help you with today?`;
+        tokens = 1;
       }
-    } catch (error) {
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: 'I can help you be productive and achieve your goals! What are you working on today?' 
-      }]);
-    }
 
-    setLoading(false);
+      if (connected) {
+        setTotalTokens(prev => prev + tokens);
+        response += `\n\n🎉 +${tokens} CONSILIENCE tokens earned!`;
+      }
+
+      setMessages(prev => [...prev, { role: 'ai', content: response }]);
+      setLoading(false);
+    }, 1000);
   };
 
   return (
@@ -124,15 +72,22 @@ When users accomplish something, mention they've earned CONSILIENCE tokens.`
           {connected && (
             <div className="text-right">
               <div className="text-cyan-400 font-bold">{totalTokens} CONSILIENCE</div>
-              <div className="text-white/60 text-xs">{streak} day streak</div>
+              <div className="text-white/60 text-xs">Tokens earned</div>
             </div>
           )}
           <WalletMultiButton className="!bg-white/10 hover:!bg-white/20 !border-white/20 !text-white !rounded-full !text-sm" />
         </div>
       </div>
 
+      {/* Navigation */}
+      <div className="flex justify-center space-x-4 p-4 bg-black/10">
+        <a href="/" className="text-cyan-400 px-4 py-2 rounded-full bg-cyan-400/20">Chat</a>
+        <a href="/goals" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Goals</a>
+        <a href="/connect" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Connect</a>
+      </div>
+
       {/* Main Chat */}
-      <div className="flex flex-col h-[calc(100vh-88px)]">
+      <div className="flex flex-col h-[calc(100vh-160px)]">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto space-y-4">
@@ -168,11 +123,6 @@ When users accomplish something, mention they've earned CONSILIENCE tokens.`
                     : 'bg-white/10 backdrop-blur text-white border border-white/20'
                 }`}>
                   <div className="whitespace-pre-wrap">{message.content}</div>
-                  {message.reward && (
-                    <div className="mt-2 text-xs opacity-75">
-                      Token reward sent to wallet
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
