@@ -51,7 +51,7 @@ export default function Home() {
 
       // Reward tokens if wallet connected
       let tokens = 0;
-      if (connected && publicKey && sendTransaction) {
+      if (connected && publicKey) {
         const lower = userMessage.toLowerCase();
         if (lower.includes('goal') || lower.includes('plan')) tokens = 5;
         else if (lower.includes('complete') || lower.includes('done')) tokens = 10;
