@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (lower.includes('entrepreneur') || lower.includes('skills')) {
       response = `Excellent! Entrepreneurs with strong skills are the backbone of innovation. What specific areas do you excel in? I can help connect you with complementary talent - perhaps technical co-founders, business development partners, or investors who align with your vision.`;
-    } else if (lower.includes('how are you') || lower.includes('how\\'s it going')) {
+    } else if (lower.includes('how are you') || lower.includes('how\'s it going')) {
       response = `I'm operating at full capacity and excited to help! I've been analyzing connection patterns and learning about the incredible talent in our community. There's real synergy happening here. What's driving your ambitions today?`;
     } else if (lower.includes('connect') || lower.includes('meet') || lower.includes('people')) {
       response = `Perfect timing! I specialize in strategic introductions. The key is understanding not just what you do, but what you need and what you can offer others. Tell me about your current projects, goals, or the type of collaborators who would accelerate your success.`;
