@@ -83,30 +83,44 @@ export default function Room() {
       } else {
         // AI response for general chat
         try {
+          console.log('Calling OpenAI API...');
           const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              message: `In room "${room}" with users [${users.join(', ')}], ${userAddress} asked: ${userMessage}` 
-            }),
+            body: JSON.stringify({ message: userMessage }),
           });
+          
+          console.log('API response status:', response.status);
           
           if (response.ok) {
             const data = await response.json();
+            console.log('API response data:', data);
             aiResponse = data.response || 'I can help with crypto projects and connect people!';
           } else {
-            throw new Error('API error');
+            const errorData = await response.text();
+            console.error('API error response:', errorData);
+            throw new Error(`API error: ${response.status}`);
           }
         } catch (apiError) {
-          // Fallback responses when API fails
+          console.error('API call failed:', apiError);
+          // Dynamic fallback responses when API fails
           const lower = userMessage.toLowerCase();
-          if (lower.includes('help') || lower.includes('what')) {
-            aiResponse = `Hi ${userAddress}! I help build crypto projects in this room. Try "create nft" to build something, or ask about tokenomics, whitepapers, or Solana development.`;
-          } else if (lower.includes('project') || lower.includes('build')) {
-            aiResponse = `Great question about building, ${userAddress}! I can help with project planning, tokenomics, and creating real NFTs on Solana. What kind of project are you thinking about?`;
-          } else {
-            aiResponse = `I hear you, ${userAddress}! I'm here to help with crypto projects and connect builders. Try asking about NFTs, tokens, or project ideas!`;
-          }
+          const responses = {
+            greetings: [`Hey ${userAddress}! Welcome to room ${room}. What crypto project are you working on?`, `Hi ${userAddress}! This room has ${users.length} builders. What brings you here?`, `Welcome ${userAddress}! Ready to build something amazing on Solana?`],
+            help: [`I can help you build crypto projects, ${userAddress}! I create real NFTs, explain tokenomics, write whitepapers, and connect builders.`, `${userAddress}, I'm your crypto project assistant. Ask me about Solana development, DeFi, NFTs, or project planning!`, `Hey ${userAddress}! I help with everything crypto - from NFT creation to token economics. What do you need?`],
+            projects: [`Interesting project idea, ${userAddress}! Tell me more about your vision. I can help with tokenomics and technical planning.`, `${userAddress}, that sounds like a solid project! Want me to help you create a whitepaper or roadmap?`, `Great thinking, ${userAddress}! I can help you build that. Should we start with an NFT or token creation?`],
+            nft: [`${userAddress}, I create real NFTs on Solana! Connect your wallet and say "create nft" to build one.`, `NFTs are powerful, ${userAddress}! I can create real ones on Solana blockchain. Want to try?`, `${userAddress}, ready to mint an NFT? I'll create a real one on Solana for you!`],
+            general: [`That's interesting, ${userAddress}! How does that relate to your crypto project?`, `${userAddress}, I'm thinking about that... How can we turn this into a blockchain solution?`, `Good point, ${userAddress}! Want to explore how blockchain could solve this?`, `${userAddress}, that reminds me of a DeFi project I helped with. Want to brainstorm?`]
+          };
+          
+          let category = 'general';
+          if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) category = 'greetings';
+          else if (lower.includes('help') || lower.includes('what') || lower.includes('how')) category = 'help';
+          else if (lower.includes('project') || lower.includes('build') || lower.includes('idea')) category = 'projects';
+          else if (lower.includes('nft') || lower.includes('token') || lower.includes('mint')) category = 'nft';
+          
+          const categoryResponses = responses[category];
+          aiResponse = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
         }
       }
 

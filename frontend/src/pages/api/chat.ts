@@ -12,6 +12,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Check if OpenAI API key exists
+    console.log('OpenAI API Key exists:', !!process.env.OPENAI_API_KEY);
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('Missing OPENAI_API_KEY environment variable');
+      throw new Error('No API key configured');
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -31,7 +38,7 @@ Your role:
 3. **NFT Creator**: Create real NFTs on Solana with "create nft" command
 4. **Technical Guide**: Explain blockchain concepts, Solana development, DeFi
 
-Be encouraging about collaboration and building together. When multiple users are present, help them connect and work on projects together. Keep responses helpful and community-focused.`
+Be encouraging about collaboration and building together. When multiple users are present, help them connect and work on projects together. Keep responses helpful and community-focused. Vary your responses - don't repeat the same phrases.`
           },
           {
             role: 'user',
@@ -39,12 +46,12 @@ Be encouraging about collaboration and building together. When multiple users ar
           }
         ],
         max_tokens: 150,
-        temperature: 0.7,
+        temperature: 0.8,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('OpenAI API error');
+      throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -53,6 +60,7 @@ Be encouraging about collaboration and building together. When multiple users ar
     res.status(200).json({ response: aiResponse });
   } catch (error) {
     console.error('OpenAI API error:', error);
-    res.status(500).json({ error: 'Failed to generate response' });
+    // Return error so client uses fallbacks
+    res.status(500).json({ error: 'API unavailable - using fallbacks' });
   }
 }
