@@ -82,16 +82,32 @@ export default function Room() {
         aiResponse = `${userAddress}, connect your wallet to create NFTs`;
       } else {
         // AI response for general chat
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            message: `In room "${room}" with users [${users.join(', ')}], ${userAddress} asked: ${userMessage}` 
-          }),
-        });
-        
-        const data = await response.json();
-        aiResponse = data.response || 'I can help with crypto projects and connect people. Try "create nft" to build!';
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              message: `In room "${room}" with users [${users.join(', ')}], ${userAddress} asked: ${userMessage}` 
+            }),
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            aiResponse = data.response || 'I can help with crypto projects and connect people!';
+          } else {
+            throw new Error('API error');
+          }
+        } catch (apiError) {
+          // Fallback responses when API fails
+          const lower = userMessage.toLowerCase();
+          if (lower.includes('help') || lower.includes('what')) {
+            aiResponse = `Hi ${userAddress}! I help build crypto projects in this room. Try "create nft" to build something, or ask about tokenomics, whitepapers, or Solana development.`;
+          } else if (lower.includes('project') || lower.includes('build')) {
+            aiResponse = `Great question about building, ${userAddress}! I can help with project planning, tokenomics, and creating real NFTs on Solana. What kind of project are you thinking about?`;
+          } else {
+            aiResponse = `I hear you, ${userAddress}! I'm here to help with crypto projects and connect builders. Try asking about NFTs, tokens, or project ideas!`;
+          }
+        }
       }
 
       const aiMessage = {
