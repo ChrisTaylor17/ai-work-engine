@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
-import { createWorkToken, createNFT } from '../../utils/solana';
+// import { createWorkToken, createNFT } from '../../utils/solana';
 
 export default function ChatRoom() {
   const router = useRouter();
