@@ -233,7 +233,7 @@ export default function Home() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={connected ? "Message builders or type 'create nft'..." : "Connect wallet to participate..."}
+              placeholder={connected ? "Message builders or type create nft..." : "Connect wallet to participate..."}
               className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black"
               disabled={creating}
             />
