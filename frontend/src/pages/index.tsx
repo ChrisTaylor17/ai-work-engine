@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { rewardUser } from '../utils/token';
+import { createRealNFT } from '../utils/nft';
 
 export default function Home() {
   const [input, setInput] = useState('');
@@ -26,34 +27,66 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // Call OpenAI API
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage }),
-      });
-      
+      // Direct OpenAI API call
       let aiResponse = '';
-      if (response.ok) {
-        const data = await response.json();
-        aiResponse = data.response;
-      } else {
+      try {
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [{
+              role: 'system',
+              content: 'You are CONSILIENCE, a helpful AI assistant that helps with productivity, crypto projects, and creating NFTs. Be encouraging and helpful.'
+            }, {
+              role: 'user',
+              content: userMessage
+            }],
+            max_tokens: 150,
+            temperature: 0.7,
+          }),
+        });
+        
+        if (openaiResponse.ok) {
+          const data = await openaiResponse.json();
+          aiResponse = data.choices[0]?.message?.content || 'I can help you with crypto projects and productivity!';
+        } else {
+          throw new Error('OpenAI API failed');
+        }
+      } catch (openaiError) {
         // Fallback responses
         const lower = userMessage.toLowerCase();
-        if (lower.includes('meet') || lower.includes('connect') || lower.includes('people')) {
+        if (lower.includes('create nft') || lower.includes('nft')) {
+          aiResponse = `I can create real NFTs on Solana! Connect your wallet and I'll mint a unique NFT for you. What should your NFT represent?`;
+        } else if (lower.includes('meet') || lower.includes('connect') || lower.includes('people')) {
           aiResponse = `I'd love to help you connect with like-minded people! Check out the Connect page to find others with similar interests. What kind of people are you hoping to meet?`;
         } else if (lower.includes('goal') || lower.includes('plan')) {
           aiResponse = `Great! Setting goals is the first step to success. I'll help you break this down into actionable steps. What specific outcome do you want to achieve?`;
         } else {
-          aiResponse = `I'm here to help you be productive and connect with others! What are you working on today?`;
+          aiResponse = `Hello! I'm CONSILIENCE, your AI assistant. I can help with productivity, create real NFTs on Solana, and connect you with other builders. What would you like to do?`;
+        }
+      }
+
+      // Handle NFT creation
+      const lower = userMessage.toLowerCase();
+      if (lower.includes('create nft') && connected && publicKey) {
+        try {
+          const imageUrl = `https://picsum.photos/512/512?random=${Date.now()}`;
+          const nft = await createRealNFT({ publicKey, sendTransaction }, 'CONSILIENCE NFT', userMessage, imageUrl);
+          aiResponse += `\n\n✨ NFT Created Successfully!\n🇮🇲 Image: ${imageUrl}\n🔗 Mint: ${nft.mintAddress}\n🔍 View on Solana Explorer: https://explorer.solana.com/address/${nft.mintAddress}?cluster=devnet`;
+        } catch (error) {
+          aiResponse += `\n\n❌ NFT creation failed. Make sure your wallet is connected and try again.`;
         }
       }
 
       // Reward tokens if wallet connected
       let tokens = 0;
       if (connected && publicKey) {
-        const lower = userMessage.toLowerCase();
-        if (lower.includes('goal') || lower.includes('plan')) tokens = 5;
+        if (lower.includes('create nft')) tokens = 25;
+        else if (lower.includes('goal') || lower.includes('plan')) tokens = 5;
         else if (lower.includes('complete') || lower.includes('done')) tokens = 10;
         else if (lower.includes('learn') || lower.includes('study')) tokens = 3;
         else tokens = 1;
