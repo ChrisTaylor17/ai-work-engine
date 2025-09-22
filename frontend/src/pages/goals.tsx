@@ -71,7 +71,7 @@ export default function Goals() {
     if (!goal || goal.completed) return;
 
     // Reward user with tokens
-    if (connected && publicKey && sendTransaction) {
+    if (connected && publicKey) {
       try {
         await rewardUser({ publicKey, sendTransaction }, goal.reward, `Completed: ${goal.title}`);
       } catch (error) {
