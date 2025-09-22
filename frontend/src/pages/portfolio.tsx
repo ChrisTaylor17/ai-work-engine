@@ -112,6 +112,8 @@ export default function Portfolio() {
           <Link href="/connect" className="text-gray-400 hover:text-white font-medium">Connect</Link>
           <Link href="/portfolio" className="text-white border-b-2 border-white pb-1 font-medium">Portfolio</Link>
           <Link href="/goals" className="text-gray-400 hover:text-white font-medium">Goals</Link>
+          <Link href="/wallet" className="text-gray-400 hover:text-white font-medium">Wallet</Link>
+          <Link href="/nfts" className="text-gray-400 hover:text-white font-medium">NFTs</Link>
           <Link href="/analytics" className="text-gray-400 hover:text-white font-medium">Analytics</Link>
         </div>
       </div>
