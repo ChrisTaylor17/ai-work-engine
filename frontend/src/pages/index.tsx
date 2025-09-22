@@ -1,15 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { rewardUser } from '../utils/token';
 
 export default function Home() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Array<{role: string, content: string}>>([]);
   const [loading, setLoading] = useState(false);
   const [totalTokens, setTotalTokens] = useState(0);
-  const { connected, publicKey } = useWallet();
+  const [mounted, setMounted] = useState(false);
+  const { connected, publicKey, sendTransaction } = useWallet();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
@@ -18,40 +24,61 @@ export default function Home() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
 
-    // Simple AI responses without external API calls
-    setTimeout(() => {
-      const lower = userMessage.toLowerCase();
-      let response = '';
-      let tokens = 0;
-
-      if (lower.includes('goal') || lower.includes('plan')) {
-        response = `Great! Setting goals is the first step to success. I'll help you break this down into actionable steps. What specific outcome do you want to achieve?`;
-        tokens = 5;
-      } else if (lower.includes('complete') || lower.includes('done') || lower.includes('finished')) {
-        response = `Congratulations on completing that! 🎉 Finishing tasks is how we build momentum. What's your next priority?`;
-        tokens = 10;
-      } else if (lower.includes('learn') || lower.includes('study')) {
-        response = `Learning is investing in yourself! 📚 What topic are you diving into? I can help you create a structured learning plan.`;
-        tokens = 3;
-      } else if (lower.includes('help') || lower.includes('stuck')) {
-        response = `I'm here to help you succeed! 💪 Tell me more about what you're working on and where you're getting stuck. We'll figure it out together.`;
-        tokens = 2;
-      } else if (lower.includes('hello') || lower.includes('hi')) {
-        response = `Hello! I'm CONSILIENCE, your productivity companion. I help you set goals, track progress, and connect with other builders. What are you working on today?`;
-        tokens = 1;
+    try {
+      // Call OpenAI API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage }),
+      });
+      
+      let aiResponse = '';
+      if (response.ok) {
+        const data = await response.json();
+        aiResponse = data.response;
       } else {
-        response = `I love your energy! Let's channel that into something productive. What project or goal can I help you with today?`;
-        tokens = 1;
+        // Fallback responses
+        const lower = userMessage.toLowerCase();
+        if (lower.includes('meet') || lower.includes('connect') || lower.includes('people')) {
+          aiResponse = `I'd love to help you connect with like-minded people! Check out the Connect page to find others with similar interests. What kind of people are you hoping to meet?`;
+        } else if (lower.includes('goal') || lower.includes('plan')) {
+          aiResponse = `Great! Setting goals is the first step to success. I'll help you break this down into actionable steps. What specific outcome do you want to achieve?`;
+        } else {
+          aiResponse = `I'm here to help you be productive and connect with others! What are you working on today?`;
+        }
       }
 
-      if (connected) {
-        setTotalTokens(prev => prev + tokens);
-        response += `\n\n🎉 +${tokens} CONSILIENCE tokens earned!`;
+      // Reward tokens if wallet connected
+      let tokens = 0;
+      if (connected && publicKey && sendTransaction) {
+        const lower = userMessage.toLowerCase();
+        if (lower.includes('goal') || lower.includes('plan')) tokens = 5;
+        else if (lower.includes('complete') || lower.includes('done')) tokens = 10;
+        else if (lower.includes('learn') || lower.includes('study')) tokens = 3;
+        else tokens = 1;
+
+        try {
+          const reward = await rewardUser({ publicKey, sendTransaction }, tokens, 'Chat engagement');
+          if (reward) {
+            setTotalTokens(prev => prev + tokens);
+            aiResponse += `\n\n🎉 +${tokens} CONSILIENCE tokens sent to your wallet!`;
+          }
+        } catch (error) {
+          console.error('Token reward failed:', error);
+          setTotalTokens(prev => prev + tokens);
+          aiResponse += `\n\n🎉 +${tokens} CONSILIENCE tokens earned!`;
+        }
       }
 
-      setMessages(prev => [...prev, { role: 'ai', content: response }]);
-      setLoading(false);
-    }, 1000);
+      setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        content: 'I can help you be productive and connect with others! What are you working on today?' 
+      }]);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -69,13 +96,15 @@ export default function Home() {
         </div>
         
         <div className="flex items-center space-x-4">
-          {connected && (
+          {mounted && connected && (
             <div className="text-right">
               <div className="text-cyan-400 font-bold">{totalTokens} CONSILIENCE</div>
-              <div className="text-white/60 text-xs">Tokens earned</div>
+              <div className="text-white/60 text-xs">Real Solana tokens</div>
             </div>
           )}
-          <WalletMultiButton className="!bg-white/10 hover:!bg-white/20 !border-white/20 !text-white !rounded-full !text-sm" />
+          {mounted && (
+            <WalletMultiButton className="!bg-white/10 hover:!bg-white/20 !border-white/20 !text-white !rounded-full !text-sm" />
+          )}
         </div>
       </div>
 
