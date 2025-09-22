@@ -127,8 +127,8 @@ export default function ProjectCreator() {
     
     setTimeout(async () => {
       const tokensEarned = Math.floor(Math.random() * 15) + 10;
-      let tokenData;
-      let nftData;
+      let tokenData: any = null;
+      let nftData: any = null;
       const lower = input.toLowerCase();
       
       let response = '';
