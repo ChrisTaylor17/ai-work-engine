@@ -83,26 +83,19 @@ export default function Room() {
       } else {
         // AI response for general chat
         try {
-          console.log('Calling OpenAI API...');
           const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: userMessage }),
           });
           
-          console.log('API response status:', response.status);
-          
           if (response.ok) {
             const data = await response.json();
-            console.log('API response data:', data);
-            aiResponse = data.response || 'I can help with crypto projects and connect people!';
+            aiResponse = data.response;
           } else {
-            const errorData = await response.text();
-            console.error('API error response:', errorData);
-            throw new Error(`API error: ${response.status}`);
+            throw new Error('API failed');
           }
         } catch (apiError) {
-          console.error('API call failed:', apiError);
           // Dynamic fallback responses when API fails
           const lower = userMessage.toLowerCase();
           const responses = {
@@ -160,7 +153,7 @@ export default function Room() {
           </div>
           <div>
             <span className="text-white font-light text-lg tracking-widest">CONSILIENCE</span>
-            <div className="text-white/50 text-xs">Room: {room} • {users.length} users</div>
+            <div className="text-white/50 text-xs">Room: {room} • {users.length} users • Share URL to invite others</div>
           </div>
         </div>
         <WalletMultiButton className="!bg-white/10 hover:!bg-white/20 !border-white/20 !text-white !text-xs !px-3 !py-2 !rounded-full" />

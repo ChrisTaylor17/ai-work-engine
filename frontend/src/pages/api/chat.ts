@@ -1,73 +1,35 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('Chat API called:', req.method, req.body);
-  
   if (req.method !== 'POST') {
-    console.log('Wrong method:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { message } = req.body;
-  console.log('Message received:', message);
 
   if (!message) {
-    console.log('No message provided');
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  try {
-    // Check if OpenAI API key exists
-    console.log('OpenAI API Key exists:', !!process.env.OPENAI_API_KEY);
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('Missing OPENAI_API_KEY environment variable');
-      throw new Error('No API key configured');
-    }
+  // Simple AI responses for now - replace with OpenAI when working
+  const lower = message.toLowerCase();
+  let response = '';
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: `You are CONSILIENCE - an AI assistant in a crypto project building community. You help people collaborate on blockchain projects and create real NFTs on Solana.
-
-Your role:
-1. **Community Helper**: Connect people, facilitate discussions about crypto projects
-2. **Project Builder**: Help with tokenomics, whitepapers, project planning
-3. **NFT Creator**: Create real NFTs on Solana with "create nft" command
-4. **Technical Guide**: Explain blockchain concepts, Solana development, DeFi
-
-Be encouraging about collaboration and building together. When multiple users are present, help them connect and work on projects together. Keep responses helpful and community-focused. Vary your responses - don't repeat the same phrases.`
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        max_tokens: 150,
-        temperature: 0.8,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('OpenAI response:', data);
-    const aiResponse = data.choices[0]?.message?.content || 'I can help you with questions or create NFTs on Solana. What would you like to do?';
-    
-    console.log('Sending response:', aiResponse);
-    res.status(200).json({ response: aiResponse });
-  } catch (error) {
-    console.error('OpenAI API error:', error);
-    // Return error so client uses fallbacks
-    res.status(500).json({ error: 'API unavailable - using fallbacks' });
+  if (lower.includes('create token') || lower.includes('token')) {
+    response = `I can help you create tokens! For now, I create NFTs on Solana with "create nft". Token creation coming soon. What kind of token are you thinking about?`;
+  } else if (lower.includes('yes') || lower.includes('sure')) {
+    response = `Great! Connect your wallet and type "create nft" to build a real NFT on Solana blockchain. What should we create?`;
+  } else if (lower.includes('no') || lower.includes('nope')) {
+    response = `No problem! What else can I help you with? I can discuss crypto projects, explain blockchain concepts, or create NFTs.`;
+  } else if (lower.includes('chat') || lower.includes('talk') || lower.includes('user')) {
+    response = `To chat with other users, just type normally! Everyone in this room can see your messages. Share the room URL with friends to invite them. What would you like to discuss?`;
+  } else if (lower.includes('hello') || lower.includes('hi')) {
+    response = `Hello! I'm CONSILIENCE, your crypto project assistant. I can create real NFTs on Solana, help with project planning, and facilitate discussions. What brings you here?`;
+  } else if (lower.includes('help')) {
+    response = `I can help with:\n• Creating real NFTs on Solana ("create nft")\n• Crypto project planning and tokenomics\n• Connecting builders in this room\n• Blockchain development questions\n\nWhat do you need help with?`;
+  } else {
+    response = `Interesting! I'm here to help with crypto projects and blockchain development. Want to create an NFT, discuss a project idea, or connect with other builders?`;
   }
+
+  res.status(200).json({ response });
 }
