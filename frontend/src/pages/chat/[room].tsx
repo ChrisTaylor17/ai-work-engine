@@ -53,8 +53,8 @@ export default function ChatRoom() {
     const tokensEarned = Math.floor(Math.random() * 10) + 5;
     
     setTimeout(async () => {
-      let tokenData;
-      let nftData;
+      let tokenData: any = null;
+      let nftData: any = null;
       
       // Check if user wants to create NFT
       if (newMessage.toLowerCase().includes('nft') || newMessage.toLowerCase().includes('create art')) {
