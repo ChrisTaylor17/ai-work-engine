@@ -13,41 +13,46 @@ export default function Room() {
   const [users, setUsers] = useState<string[]>([]);
   const { connected, publicKey, sendTransaction } = useWallet();
 
-  // Simple room state management (in production, use WebSocket/Socket.io)
+  // Server-side room state management
   useEffect(() => {
     if (!room) return;
     
-    // Load room messages from localStorage
-    const roomKey = `room_${room}`;
-    const savedMessages = localStorage.getItem(roomKey);
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    }
+    // Load room messages from server
+    const loadMessages = async () => {
+      try {
+        const response = await fetch(`/api/rooms/${room}`);
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.messages || []);
+        }
+      } catch (error) {
+        console.error('Failed to load messages:', error);
+      }
+    };
+
+    loadMessages();
 
     // Add user to room
     const userAddress = publicKey?.toBase58().slice(0, 8) || 'Anonymous';
     setUsers(prev => Array.from(new Set([...prev, userAddress])));
 
     // Poll for new messages every 2 seconds
-    const interval = setInterval(() => {
-      const currentMessages = localStorage.getItem(roomKey);
-      if (currentMessages) {
-        const parsed = JSON.parse(currentMessages);
-        setMessages(prev => {
-          if (JSON.stringify(prev) !== JSON.stringify(parsed)) {
-            return parsed;
-          }
-          return prev;
-        });
-      }
-    }, 2000);
+    const interval = setInterval(loadMessages, 2000);
 
     return () => clearInterval(interval);
   }, [room, publicKey]);
 
-  const saveMessages = (newMessages: any[]) => {
+  const saveMessage = async (message: any) => {
     if (room) {
-      localStorage.setItem(`room_${room}`, JSON.stringify(newMessages));
+      try {
+        await fetch(`/api/rooms/${room}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message }),
+        });
+      } catch (error) {
+        console.error('Failed to save message:', error);
+      }
     }
   };
 
@@ -68,7 +73,7 @@ export default function Room() {
     
     const updatedMessages = [...messages, newUserMessage];
     setMessages(updatedMessages);
-    saveMessages(updatedMessages);
+    await saveMessage(newUserMessage);
     setLoading(true);
 
     try {
@@ -126,7 +131,7 @@ export default function Room() {
 
       const finalMessages = [...updatedMessages, aiMessage];
       setMessages(finalMessages);
-      saveMessages(finalMessages);
+      await saveMessage(aiMessage);
     } catch (error) {
       const errorMessage = {
         role: 'ai',
@@ -137,7 +142,7 @@ export default function Room() {
       
       const finalMessages = [...updatedMessages, errorMessage];
       setMessages(finalMessages);
-      saveMessages(finalMessages);
+      await saveMessage(errorMessage);
     }
 
     setLoading(false);
