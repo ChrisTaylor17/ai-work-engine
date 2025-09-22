@@ -73,7 +73,7 @@ export default function Room() {
     
     const updatedMessages = [...messages, newUserMessage];
     setMessages(updatedMessages);
-    await saveMessage(newUserMessage);
+    saveMessage(newUserMessage);
     setLoading(true);
 
     try {
@@ -131,7 +131,7 @@ export default function Room() {
 
       const finalMessages = [...updatedMessages, aiMessage];
       setMessages(finalMessages);
-      await saveMessage(aiMessage);
+      saveMessage(aiMessage);
     } catch (error) {
       const errorMessage = {
         role: 'ai',
@@ -142,7 +142,7 @@ export default function Room() {
       
       const finalMessages = [...updatedMessages, errorMessage];
       setMessages(finalMessages);
-      await saveMessage(errorMessage);
+      saveMessage(errorMessage);
     }
 
     setLoading(false);
