@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { rewardUser } from '../utils/token';
@@ -110,9 +111,9 @@ export default function Home() {
 
       {/* Navigation */}
       <div className="flex justify-center space-x-4 p-4 bg-black/10">
-        <a href="/" className="text-cyan-400 px-4 py-2 rounded-full bg-cyan-400/20">Chat</a>
-        <a href="/goals" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Goals</a>
-        <a href="/connect" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Connect</a>
+        <Link href="/" className="text-cyan-400 px-4 py-2 rounded-full bg-cyan-400/20">Chat</Link>
+        <Link href="/goals" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Goals</Link>
+        <Link href="/connect" className="text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10">Connect</Link>
       </div>
 
       {/* Main Chat */}
