@@ -119,7 +119,7 @@ export default function Room() {
           else if (lower.includes('project') || lower.includes('build') || lower.includes('idea')) category = 'projects';
           else if (lower.includes('nft') || lower.includes('token') || lower.includes('mint')) category = 'nft';
           
-          const categoryResponses = responses[category];
+          const categoryResponses = responses[category as keyof typeof responses];
           aiResponse = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
         }
       }
