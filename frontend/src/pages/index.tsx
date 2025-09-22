@@ -66,7 +66,7 @@ export default function Home() {
         const nftMessage: Message = {
           id: Date.now().toString(),
           user: userName,
-          content: `🎨 Created NFT: "${userName}'s NFT"`,
+          content: `🎨 Created NFT: ${userName}'s NFT`,
           timestamp: Date.now(),
           nft: { ...nft, image: imageUrl },
           action: 'nft_created'
@@ -138,7 +138,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
           <div className="text-xs text-gray-400 space-y-1">
             <div>💬 Chat with builders</div>
-            <div>🎨 Type "create nft" to mint</div>
+            <div>🎨 Type create nft to mint</div>
             <div>🤝 Connect wallets to collaborate</div>
           </div>
         </div>
